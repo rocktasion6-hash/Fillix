@@ -1,51 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'app/data/services/supabase_service.dart';
+import 'app/routes/app_pages.dart';
+import 'app/routes/app_routes.dart';
 
-import 'views/home_page.dart';
-import 'views/login_page.dart';
 
 void main() async {
-
+  // 1. Pastikan binding Flutter sudah siap
   WidgetsFlutterBinding.ensureInitialized();
 
-  // INIT SUPABASE
-  await Supabase.initialize(
+  // 2. Inisialisasi Supabase Service sebelum app berjalan
+  // Ini krusial agar AuthProvider tidak error saat memanggil Supabase client
+  await Get.putAsync(() => SupabaseService().init());
 
-    url:
-    'https://ozncwqoprwqeculkpphf.supabase.co',
-
-    anonKey:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96bmN3cW9wcndxZWN1bGtwcGhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1ODE2MDQsImV4cCI6MjA5NDE1NzYwNH0.9y8klbgwLBvkhmEHlZoO6VTw2R7UaRYxcvge4iSP4Ug',
-  );
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-
-    final session =
-        Supabase.instance.client.auth.currentSession;
-
-    return GetMaterialApp(
-
+  runApp(
+    GetMaterialApp(
+      title: "Fillix App",
       debugShowCheckedModeBanner: false,
-
-      title: 'Fillix',
-
+      
+      // 3. Routing
+      initialRoute: AppPages.INITIAL, 
+      getPages: AppPages.routes,      
+      
+      // 4. Theme Configuration
       theme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.red,
+        useMaterial3: true,
+        // Di Material 3, primarySwatch seringkali tidak cukup. 
+        // Gunakan colorScheme untuk kontrol warna merah yang lebih kuat.
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.red,
+          primary: Colors.red, // Warna utama branding Fillix
+        ),
+        // Opsional: Atur background default menjadi gelap jika ingin gaya bioskop
+        // scaffoldBackgroundColor: const Color(0xFF141414), 
       ),
-
-      home:
-      session != null
-          ? const HomePage()
-          : const LoginPage(),
-    );
-  }
+      
+      // Default transition antar halaman agar lebih smooth
+      defaultTransition: Transition.cupertino,
+    ),
+  );
 }
