@@ -1,30 +1,49 @@
-
-
 import 'package:get/get.dart';
 
-// Import semua binding dan view yang sudah dibuat
+// Splash
+import '../modules/splash/bindings/splash_binding.dart';
+import '../modules/splash/views/splash_view.dart';
+
+// Login
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+
+// Register
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+
+// Home
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+
+// Admin CRUD
 import '../modules/admin_crud/bindings/admin_crud_binding.dart';
 import '../modules/admin_crud/views/admin_crud_view.dart';
+
+// Detail Film
+import '../modules/detail_film/bindings/detail_film_binding.dart';
 import '../modules/detail_film/views/detail_film_view.dart';
-import '../modules/detail_film/bindings/detail_film_binding.dart';
-import '../modules/detail_film/bindings/detail_film_binding.dart';
+
+// Pesan Tiket
 import '../modules/pesan_tiket/bindings/pesan_tiket_binding.dart';
 import '../modules/pesan_tiket/views/pesan_tiket_view.dart';
+
+// Main Navigation
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
-  // Tentukan halaman pertama yang muncul saat aplikasi dibuka
-  static const INITIAL = Routes.LOGIN;
+  // Halaman pertama saat aplikasi dibuka
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
+    GetPage(
+      name: Routes.SPLASH,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: Routes.LOGIN,
       page: () => LoginView(),

@@ -58,16 +58,16 @@ class _SplashViewState extends State<SplashView>
           final hold = _part(0.30, 0.52, Curves.easeInOut);
           // Zoom dibuat pelan. Saat zoom mulai berjalan, garis atas F
           // hilang dari kanan ke kiri, lalu disusul garis tengah F.
-          final zoom = _part(0.44, 0.82, Curves.easeInOutCubic);
-          final fLineExit = _part(0.44, 0.70, Curves.easeInOutCubic);
-          final tunnel = _part(0.50, 0.97, Curves.easeOutCubic);
+          final zoom = _part(0.44, 0.84, Curves.easeInOutCubic);
+          final fLineExit = _part(0.44, 0.60, Curves.easeInOutCubic);
+          final tunnel = _part(0.60, 0.97, Curves.easeOutCubic);
           final finalFade = _part(0.90, 1.00, Curves.easeIn);
 
           // Batang F tetap kelihatan saat awal zoom, lalu pelan-pelan
           // melebur mengikuti garis warna-warni.
-          final logoOpacity = v < 0.66
+          final logoOpacity = v < 0.74
               ? 1.0
-              : (1 - _part(0.66, 0.82, Curves.easeIn)).clamp(0.0, 1.0);
+              : (1 - _part(0.74, 0.88, Curves.easeIn)).clamp(0.0, 1.0);
           final size = MediaQuery.sizeOf(context);
           final logoPaintWidth = math.min(size.width * 0.28, 170).toDouble();
           // Titik zoom harus masuk ke batang utama F, bukan ke tengah huruf F.
@@ -201,6 +201,98 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
     canvas.restore();
   }
 
+
+  void _drawMeltStripes(
+    Canvas canvas,
+    Path clipPath,
+    Size size,
+    double amount, {
+    double opacity = 1.0,
+    double spread = 0.34,
+  }) {
+    if (amount <= 0 || opacity <= 0) return;
+
+    final w = size.width;
+    final h = size.height;
+    final colors = <Color>[
+      const Color(0xFFFF101A),
+      const Color(0xFFFF5A00),
+      const Color(0xFFFFB000),
+      const Color(0xFFFF2D75),
+      const Color(0xFF8B22FF),
+      const Color(0xFF4FB2FF),
+    ];
+
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    for (int i = 0; i < 42; i++) {
+      final t = i / 41.0;
+      final x = w * (0.10 + t * spread) + math.sin(i * 1.37 + amount * 4) * w * 0.012;
+      final lineWidth = (0.8 + (i % 5) * 0.55) * (0.40 + amount * 1.35);
+      final alpha = (0.10 + 0.48 * amount) * opacity;
+
+      canvas.drawLine(
+        Offset(x, h * -0.10),
+        Offset(x + w * (0.015 + 0.035 * amount), h * 1.10),
+        Paint()
+          ..color = colors[i % colors.length].withOpacity(alpha)
+          ..strokeWidth = lineWidth
+          ..strokeCap = StrokeCap.square
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            1.4 + 5.5 * amount,
+          ),
+      );
+    }
+
+    for (int i = 0; i < 24; i++) {
+      final t = i / 23.0;
+      final x = w * (0.10 + t * spread);
+      canvas.drawLine(
+        Offset(x, h * -0.05),
+        Offset(x + w * 0.02, h * 1.05),
+        Paint()
+          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..strokeWidth = 0.8 + (i % 3) * 1.0
+          ..strokeCap = StrokeCap.square,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  void _drawBlurExitPath(
+    Canvas canvas,
+    Path path,
+    double amount,
+    double visible,
+  ) {
+    if (amount <= 0 || visible <= 0) return;
+
+    final blurAmount = Curves.easeOutCubic.transform(amount);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          4 + 24 * blurAmount,
+        ),
+    );
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..blendMode = BlendMode.plus
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          12 + 28 * blurAmount,
+        ),
+    );
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
@@ -216,11 +308,16 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
     // Saat kamera mulai masuk/zoom, garis atas dan tengah
     // tidak langsung hilang. Keduanya disapu perlahan dari kanan
     // ke kiri sambil batang utama F mulai membesar.
-    final topExit = _lineExitRange(0.00, 0.48, Curves.easeInOutCubic);
-    final midExit = _lineExitRange(0.28, 0.82, Curves.easeInOutCubic);
+    final topExit = _lineExitRange(0.00, 0.55, Curves.easeInOutCubic);
+    final midExit = _lineExitRange(0.18, 0.82, Curves.easeInOutCubic);
     final topVisible = topReveal * (1 - topExit);
     final midVisible = midReveal * (1 - midExit);
-    final meshProgress = _zoomRange(0.00, 0.48, Curves.easeOutCubic);
+
+    // Garis warna-warni sudah mulai masuk saat zoom berjalan.
+    final meshProgress = _zoomRange(0.00, 0.66, Curves.easeOutCubic);
+    final stemMelt = _zoomRange(0.12, 0.78, Curves.easeInOutCubic);
+    final topMelt = (topExit * meshProgress).clamp(0.0, 1.0);
+    final midMelt = (midExit * meshProgress).clamp(0.0, 1.0);
 
     final stem = Path()
       ..moveTo(w * 0.18, h * 0.04)
@@ -282,17 +379,19 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
       canvas.restore();
     }
 
+    final redOpacity = (1 - stemMelt * 0.92).clamp(0.08, 1.0);
+
     final main = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Color(0xFFFF1D25),
-          Color(0xFFE50914),
-          Color(0xFFB00610),
-          Color(0xFFFF0712),
+          const Color(0xFFFF1D25).withOpacity(redOpacity),
+          const Color(0xFFE50914).withOpacity(redOpacity),
+          const Color(0xFFB00610).withOpacity(redOpacity),
+          const Color(0xFFFF0712).withOpacity(redOpacity),
         ],
-        stops: [0.0, 0.35, 0.72, 1.0],
+        stops: const [0.0, 0.35, 0.72, 1.0],
       ).createShader(rect);
 
     _drawRevealedPath(
@@ -316,6 +415,27 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
       Rect.fromLTWH(w * 0.38, h * 0.36, w * 0.45, h * 0.26),
       main,
       midVisible,
+    );
+
+    // Saat zoom, garis atas dan tengah tidak hilang kaku.
+    // Mereka ikut blur, menyala, lalu melebur menjadi garis warna-warni.
+    _drawBlurExitPath(canvas, topBar, topExit, topVisible);
+    _drawBlurExitPath(canvas, middleBar, midExit, midVisible);
+    _drawMeltStripes(
+      canvas,
+      topBar,
+      size,
+      topMelt,
+      opacity: topVisible,
+      spread: 0.86,
+    );
+    _drawMeltStripes(
+      canvas,
+      middleBar,
+      size,
+      midMelt,
+      opacity: midVisible,
+      spread: 0.70,
     );
 
     // Bayangan lipatan, ikut direveal supaya huruf F terasa terbentuk bertahap.
@@ -366,51 +486,38 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
       midVisible,
     );
 
-    // Saat batang F mulai di-zoom, isi batang berubah menjadi garis-garis
-    // vertikal rapat seperti potongan cahaya pada intro Netflix.
+    // Saat batang F mulai di-zoom, batang utama melebur menjadi
+    // garis-garis warna-warni. Efek ini berada di dalam batang F,
+    // lalu disambung oleh tunnel warna-warni layar penuh.
     if (meshProgress > 0) {
+      _drawMeltStripes(
+        canvas,
+        stem,
+        size,
+        meshProgress,
+        opacity: 1.0,
+        spread: 0.38,
+      );
+
       canvas.save();
       canvas.clipPath(stem);
-
-      final darkGap = Paint()
-        ..color = Colors.black.withOpacity(0.20 + 0.46 * meshProgress)
-        ..strokeCap = StrokeCap.square;
-
-      final lightColors = [
-        const Color(0xFFFF101A),
-        const Color(0xFFFF5A00),
-        const Color(0xFFFFB000),
-        const Color(0xFFFF2D75),
-        const Color(0xFF8B22FF),
-      ];
-
-      for (int i = 0; i < 30; i++) {
-        final t = i / 29.0;
-        final x = w * (0.15 + t * 0.34) + math.sin(i * 1.7) * w * 0.008;
-        final width = (0.9 + (i % 4) * 0.55) * meshProgress;
-        canvas.drawLine(
-          Offset(x, h * -0.08),
-          Offset(x + w * 0.03 * meshProgress, h * 1.08),
-          Paint()
-            ..color = lightColors[i % lightColors.length]
-                .withOpacity(0.10 + 0.38 * meshProgress)
-            ..strokeWidth = width
-            ..strokeCap = StrokeCap.square
-            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1.0 + 2.5 * meshProgress),
-        );
-      }
-
-      for (int i = 0; i < 22; i++) {
-        final t = i / 21.0;
-        final x = w * (0.15 + t * 0.35);
-        darkGap.strokeWidth = 0.9 + (i % 3) * 0.8 + 1.8 * meshProgress;
-        canvas.drawLine(
-          Offset(x, h * -0.04),
-          Offset(x + w * 0.018 * meshProgress, h * 1.04),
-          darkGap,
-        );
-      }
-
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              Colors.transparent,
+              const Color(0xFFFF1A1F).withOpacity(0.16 * meshProgress),
+              const Color(0xFFFFB000).withOpacity(0.10 * meshProgress),
+              const Color(0xFF8B22FF).withOpacity(0.14 * meshProgress),
+              Colors.transparent,
+            ],
+          ).createShader(rect)
+          ..blendMode = BlendMode.plus
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 18 * meshProgress),
+      );
       canvas.restore();
     }
 
@@ -461,6 +568,98 @@ class _RedAtmospherePainter extends CustomPainter {
 
   _RedAtmospherePainter({required this.progress, required this.pulse});
 
+
+  void _drawMeltStripes(
+    Canvas canvas,
+    Path clipPath,
+    Size size,
+    double amount, {
+    double opacity = 1.0,
+    double spread = 0.34,
+  }) {
+    if (amount <= 0 || opacity <= 0) return;
+
+    final w = size.width;
+    final h = size.height;
+    final colors = <Color>[
+      const Color(0xFFFF101A),
+      const Color(0xFFFF5A00),
+      const Color(0xFFFFB000),
+      const Color(0xFFFF2D75),
+      const Color(0xFF8B22FF),
+      const Color(0xFF4FB2FF),
+    ];
+
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    for (int i = 0; i < 42; i++) {
+      final t = i / 41.0;
+      final x = w * (0.10 + t * spread) + math.sin(i * 1.37 + amount * 4) * w * 0.012;
+      final lineWidth = (0.8 + (i % 5) * 0.55) * (0.40 + amount * 1.35);
+      final alpha = (0.10 + 0.48 * amount) * opacity;
+
+      canvas.drawLine(
+        Offset(x, h * -0.10),
+        Offset(x + w * (0.015 + 0.035 * amount), h * 1.10),
+        Paint()
+          ..color = colors[i % colors.length].withOpacity(alpha)
+          ..strokeWidth = lineWidth
+          ..strokeCap = StrokeCap.square
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            1.4 + 5.5 * amount,
+          ),
+      );
+    }
+
+    for (int i = 0; i < 24; i++) {
+      final t = i / 23.0;
+      final x = w * (0.10 + t * spread);
+      canvas.drawLine(
+        Offset(x, h * -0.05),
+        Offset(x + w * 0.02, h * 1.05),
+        Paint()
+          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..strokeWidth = 0.8 + (i % 3) * 1.0
+          ..strokeCap = StrokeCap.square,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  void _drawBlurExitPath(
+    Canvas canvas,
+    Path path,
+    double amount,
+    double visible,
+  ) {
+    if (amount <= 0 || visible <= 0) return;
+
+    final blurAmount = Curves.easeOutCubic.transform(amount);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          4 + 24 * blurAmount,
+        ),
+    );
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..blendMode = BlendMode.plus
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          12 + 28 * blurAmount,
+        ),
+    );
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -502,6 +701,98 @@ class _RedZoomGatePainter extends CustomPainter {
   final double centerX;
 
   _RedZoomGatePainter({required this.progress, required this.centerX});
+
+
+  void _drawMeltStripes(
+    Canvas canvas,
+    Path clipPath,
+    Size size,
+    double amount, {
+    double opacity = 1.0,
+    double spread = 0.34,
+  }) {
+    if (amount <= 0 || opacity <= 0) return;
+
+    final w = size.width;
+    final h = size.height;
+    final colors = <Color>[
+      const Color(0xFFFF101A),
+      const Color(0xFFFF5A00),
+      const Color(0xFFFFB000),
+      const Color(0xFFFF2D75),
+      const Color(0xFF8B22FF),
+      const Color(0xFF4FB2FF),
+    ];
+
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    for (int i = 0; i < 42; i++) {
+      final t = i / 41.0;
+      final x = w * (0.10 + t * spread) + math.sin(i * 1.37 + amount * 4) * w * 0.012;
+      final lineWidth = (0.8 + (i % 5) * 0.55) * (0.40 + amount * 1.35);
+      final alpha = (0.10 + 0.48 * amount) * opacity;
+
+      canvas.drawLine(
+        Offset(x, h * -0.10),
+        Offset(x + w * (0.015 + 0.035 * amount), h * 1.10),
+        Paint()
+          ..color = colors[i % colors.length].withOpacity(alpha)
+          ..strokeWidth = lineWidth
+          ..strokeCap = StrokeCap.square
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            1.4 + 5.5 * amount,
+          ),
+      );
+    }
+
+    for (int i = 0; i < 24; i++) {
+      final t = i / 23.0;
+      final x = w * (0.10 + t * spread);
+      canvas.drawLine(
+        Offset(x, h * -0.05),
+        Offset(x + w * 0.02, h * 1.05),
+        Paint()
+          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..strokeWidth = 0.8 + (i % 3) * 1.0
+          ..strokeCap = StrokeCap.square,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  void _drawBlurExitPath(
+    Canvas canvas,
+    Path path,
+    double amount,
+    double visible,
+  ) {
+    if (amount <= 0 || visible <= 0) return;
+
+    final blurAmount = Curves.easeOutCubic.transform(amount);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          4 + 24 * blurAmount,
+        ),
+    );
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..blendMode = BlendMode.plus
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          12 + 28 * blurAmount,
+        ),
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -656,6 +947,98 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
         );
       }
     }
+  }
+
+
+  void _drawMeltStripes(
+    Canvas canvas,
+    Path clipPath,
+    Size size,
+    double amount, {
+    double opacity = 1.0,
+    double spread = 0.34,
+  }) {
+    if (amount <= 0 || opacity <= 0) return;
+
+    final w = size.width;
+    final h = size.height;
+    final colors = <Color>[
+      const Color(0xFFFF101A),
+      const Color(0xFFFF5A00),
+      const Color(0xFFFFB000),
+      const Color(0xFFFF2D75),
+      const Color(0xFF8B22FF),
+      const Color(0xFF4FB2FF),
+    ];
+
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    for (int i = 0; i < 42; i++) {
+      final t = i / 41.0;
+      final x = w * (0.10 + t * spread) + math.sin(i * 1.37 + amount * 4) * w * 0.012;
+      final lineWidth = (0.8 + (i % 5) * 0.55) * (0.40 + amount * 1.35);
+      final alpha = (0.10 + 0.48 * amount) * opacity;
+
+      canvas.drawLine(
+        Offset(x, h * -0.10),
+        Offset(x + w * (0.015 + 0.035 * amount), h * 1.10),
+        Paint()
+          ..color = colors[i % colors.length].withOpacity(alpha)
+          ..strokeWidth = lineWidth
+          ..strokeCap = StrokeCap.square
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            1.4 + 5.5 * amount,
+          ),
+      );
+    }
+
+    for (int i = 0; i < 24; i++) {
+      final t = i / 23.0;
+      final x = w * (0.10 + t * spread);
+      canvas.drawLine(
+        Offset(x, h * -0.05),
+        Offset(x + w * 0.02, h * 1.05),
+        Paint()
+          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..strokeWidth = 0.8 + (i % 3) * 1.0
+          ..strokeCap = StrokeCap.square,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  void _drawBlurExitPath(
+    Canvas canvas,
+    Path path,
+    double amount,
+    double visible,
+  ) {
+    if (amount <= 0 || visible <= 0) return;
+
+    final blurAmount = Curves.easeOutCubic.transform(amount);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          4 + 24 * blurAmount,
+        ),
+    );
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..blendMode = BlendMode.plus
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          12 + 28 * blurAmount,
+        ),
+    );
   }
 
   @override
