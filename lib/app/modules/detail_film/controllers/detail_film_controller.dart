@@ -5,7 +5,7 @@ import '../../../data/models/film_model.dart';
 import '../../../data/models/komentar_model.dart';
 import '../../../data/providers/komentar_provider.dart';
 import '../../../routes/app_routes.dart';
-import '../../../routes/app_routes.dart';
+import '../../trailer/trailer_view.dart';
 import '../../pesan_tiket/bindings/pesan_tiket_binding.dart';
 import '../../pesan_tiket/views/pesan_tiket_view.dart';
 
@@ -60,7 +60,7 @@ class DetailFilmController extends GetxController {
   }
 
   void navigateToTrailer() {
-    Get.toNamed(Routes.TRAILER, arguments: film.urlTrailer);
+    TrailerView.open(film.urlTrailer);
   }
 
   void navigateToPesanTiket() {

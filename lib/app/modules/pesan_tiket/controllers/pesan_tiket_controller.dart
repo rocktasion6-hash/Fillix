@@ -9,23 +9,55 @@ class PesanTiketController extends GetxController {
   final TiketProvider _provider = TiketProvider();
 
   final tanggalController = TextEditingController();
-  final jumlahKursiController = TextEditingController();
 
   RxBool isLoading = false.obs;
+  RxBool isLoadingKursi = false.obs;
+
+  // Kursi yang dipilih user
+  RxList<String> kursiDipilih = <String>[].obs;
+  // Kursi yang sudah terpesan orang lain
+  RxList<String> kursiTerpesan = <String>[].obs;
+
+  // Layout bioskop: 8 baris (A-H), 10 kolom
+  final List<String> baris = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  final int jumlahKolom = 10;
 
   final FilmModel film;
-
   PesanTiketController({required this.film});
 
+  void toggleKursi(String kursi) {
+    if (kursiTerpesan.contains(kursi)) return;
+    if (kursiDipilih.contains(kursi)) {
+      kursiDipilih.remove(kursi);
+    } else {
+      kursiDipilih.add(kursi);
+    }
+  }
+
+  Future<void> muatKursiTerpesan() async {
+    if (tanggalController.text.isEmpty) return;
+    try {
+      isLoadingKursi.value = true;
+      kursiDipilih.clear();
+      final terpesan = await _provider.getKursiTerpesan(
+        film.id ?? '',
+        tanggalController.text,
+      );
+      kursiTerpesan.assignAll(terpesan);
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoadingKursi.value = false;
+    }
+  }
+
   Future<void> pesanTiket() async {
-    if (tanggalController.text.isEmpty || jumlahKursiController.text.isEmpty) {
-      Get.snackbar('Error', 'Semua field harus diisi');
+    if (tanggalController.text.isEmpty) {
+      Get.snackbar('Error', 'Pilih tanggal tayang terlebih dahulu');
       return;
     }
-
-    final jumlah = int.tryParse(jumlahKursiController.text);
-    if (jumlah == null || jumlah < 1) {
-      Get.snackbar('Error', 'Jumlah kursi harus berupa angka positif');
+    if (kursiDipilih.isEmpty) {
+      Get.snackbar('Error', 'Pilih minimal 1 kursi');
       return;
     }
 
@@ -42,10 +74,12 @@ class PesanTiketController extends GetxController {
         filmId: film.id,
         judulFilm: film.judul,
         tanggalTayang: tanggalController.text,
-        jumlahKursi: jumlah,
+        jumlahKursi: kursiDipilih.length,
+        kursiDipilih: kursiDipilih.toList(),
       ));
       Get.back();
-      Get.snackbar('Sukses', 'Tiket berhasil dipesan!');
+      Get.snackbar('Sukses',
+          'Tiket berhasil dipesan! Kursi: ${kursiDipilih.join(', ')}');
     } catch (e) {
       Get.snackbar('Error', e.toString());
     } finally {
@@ -56,7 +90,6 @@ class PesanTiketController extends GetxController {
   @override
   void onClose() {
     tanggalController.dispose();
-    jumlahKursiController.dispose();
     super.onClose();
   }
 }
