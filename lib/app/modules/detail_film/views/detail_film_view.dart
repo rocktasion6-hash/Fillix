@@ -1,35 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../controllers/detail_film_controller.dart';
 
 class DetailFilmView extends StatelessWidget {
   const DetailFilmView({super.key});
-
-  Future<void> _launchTrailer(String? urlString) async {
-    if (urlString == null || urlString.isEmpty) {
-      Get.snackbar(
-        "Info",
-        "Trailer tidak tersedia untuk film ini.",
-        backgroundColor: Colors.white,
-        colorText: Colors.black,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: EdgeInsets.all(20),
-      );
-      return;
-    }
-
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      Get.snackbar(
-        "Error",
-        "Tidak dapat membuka link trailer.",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +86,7 @@ class DetailFilmView extends StatelessWidget {
                       right: 0,
                       child: Center(
                         child: GestureDetector(
-                          onTap: () => _launchTrailer(film.urlTrailer),
+                          onTap: () => controller.navigateToTrailer(),
                           child: Container(
                             padding: EdgeInsets.all(18),
                             decoration: BoxDecoration(

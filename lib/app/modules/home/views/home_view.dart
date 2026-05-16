@@ -22,27 +22,49 @@ class HomeView extends GetView<HomeController> {
           )
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
-        }
-        
-        if (controller.listFilm.isEmpty) {
-          return Center(child: Text("Belum ada data film"));
-        }
-
-        // Menggunakan GridView agar lebih menarik seperti aplikasi streaming
-        return GridView.builder(
-          padding: const EdgeInsets.all(12),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 kolom
-            childAspectRatio: 0.65, // Rasio kartu (tinggi > lebar)
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            child: TextField(
+              onChanged: controller.searchFilm,
+              decoration: InputDecoration(
+                hintText: 'Cari film atau kategori...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
           ),
-          itemCount: controller.listFilm.length,
-          itemBuilder: (context, index) {
-            final film = controller.listFilm[index];
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.filteredFilm.isEmpty) {
+                return Center(child: Text(controller.searchQuery.value.isEmpty
+                    ? "Belum ada data film"
+                    : "Film tidak ditemukan"));
+              }
+
+              return GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.65,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: controller.filteredFilm.length,
+                itemBuilder: (context, index) {
+                  final film = controller.filteredFilm[index];
             return Card(
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -126,9 +148,12 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             );
-          },
-        );
-      }),
+                },
+              );
+            }),
+          ),
+        ],
+      ),
       floatingActionButton: Obx(() => controller.isAdmin.value
           ? FloatingActionButton.extended(
               onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),

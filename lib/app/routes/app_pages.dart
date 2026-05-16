@@ -25,6 +25,7 @@ import '../modules/detail_film/bindings/detail_film_binding.dart';
 import '../modules/detail_film/views/detail_film_view.dart';
 
 // Pesan Tiket
+import '../modules/trailer/trailer_view.dart';
 import '../modules/pesan_tiket/bindings/pesan_tiket_binding.dart';
 import '../modules/pesan_tiket/views/pesan_tiket_view.dart';
 
@@ -78,6 +79,10 @@ class AppPages {
       name: Routes.PESAN_TIKET,
       page: () => const PesanTiketView(),
       binding: PesanTiketBinding(),
+    ),
+    GetPage(
+      name: Routes.TRAILER,
+      page: () => const TrailerView(),
     ),
   ];
 }
