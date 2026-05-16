@@ -7,8 +7,10 @@ class HomeController extends GetxController {
 
   // State Management
   var listFilm = <FilmModel>[].obs;
+  var filteredFilm = <FilmModel>[].obs;
   var isLoading = true.obs;
   var isAdmin = false.obs;
+  var searchQuery = ''.obs;
 
   @override
   void onInit() {
@@ -27,10 +29,22 @@ class HomeController extends GetxController {
       isLoading.value = true;
       var result = await _filmProvider.getAllFilms();
       listFilm.assignAll(result);
+      filteredFilm.assignAll(result);
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void searchFilm(String query) {
+    searchQuery.value = query;
+    if (query.isEmpty) {
+      filteredFilm.assignAll(listFilm);
+    } else {
+      filteredFilm.assignAll(listFilm.where((f) =>
+          (f.judul ?? '').toLowerCase().contains(query.toLowerCase()) ||
+          (f.kategori ?? '').toLowerCase().contains(query.toLowerCase())));
     }
   }
 

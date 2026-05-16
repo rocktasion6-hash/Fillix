@@ -29,17 +29,12 @@ class HomeView extends GetView<HomeController> {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
         }
-
+        
         if (controller.listFilm.isEmpty) {
-          return Center(
-            child: Text(
-              "Belum ada data film",
-              style: TextStyle(color: Colors.grey),
-            ),
-          );
+          return Center(child: Text("Belum ada data film"));
         }
 
-        // Kembali menggunakan GridView murni agar langsung bisa di-scroll sebagai list
+        // Menggunakan GridView agar lebih menarik seperti aplikasi streaming
         return GridView.builder(
           padding: const EdgeInsets.all(12),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -161,15 +156,13 @@ class HomeView extends GetView<HomeController> {
           },
         );
       }),
-      floatingActionButton: Obx(
-        () => controller.isAdmin.value
-            ? FloatingActionButton.extended(
-                onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
-                label: Text("Tambah"),
-                icon: Icon(Icons.add),
-              )
-            : SizedBox(),
-      ),
+      floatingActionButton: Obx(() => controller.isAdmin.value
+          ? FloatingActionButton.extended(
+              onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
+              label: Text("Tambah"),
+              icon: Icon(Icons.add),
+            )
+          : SizedBox()),
     );
   }
 
