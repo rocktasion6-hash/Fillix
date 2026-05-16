@@ -34,8 +34,8 @@ class LoginController extends GetxController {
       
       Get.snackbar("Sukses", "Selamat datang kembali!");
       
-      // Kirim data role ke Home
-      Get.offAllNamed(Routes.HOME, arguments: role);
+      // Kirim data role ke MainNavigation
+      Get.offAllNamed(Routes.MAIN_NAVIGATION, arguments: role);
     }
   } catch (e) {
     // Memberikan pesan error yang lebih manusiawi

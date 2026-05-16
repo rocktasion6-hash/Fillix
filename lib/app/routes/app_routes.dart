@@ -12,4 +12,6 @@ abstract class Routes {
   static const ADMIN_CRUD = '/admin-crud';
 
   static const DETAIL_FILM = '/detail-film';
+
+  static const MAIN_NAVIGATION = '/main-navigation';
 }
