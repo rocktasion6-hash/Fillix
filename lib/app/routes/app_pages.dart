@@ -23,7 +23,7 @@ import '../modules/admin_crud/views/admin_crud_view.dart';
 // Detail Film
 import '../modules/detail_film/bindings/detail_film_binding.dart';
 import '../modules/detail_film/views/detail_film_view.dart';
-<<<<<<< Updated upstream
+<<<<<<< Updated upstream  
 
 // Pesan Tiket
 import '../modules/trailer/trailer_view.dart';
