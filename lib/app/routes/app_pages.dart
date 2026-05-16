@@ -12,6 +12,8 @@ import '../modules/admin_crud/views/admin_crud_view.dart';
 import '../modules/detail_film/views/detail_film_view.dart';
 import '../modules/detail_film/bindings/detail_film_binding.dart';
 import '../modules/detail_film/bindings/detail_film_binding.dart';
+import '../modules/pesan_tiket/bindings/pesan_tiket_binding.dart';
+import '../modules/pesan_tiket/views/pesan_tiket_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
 import 'app_routes.dart';
@@ -50,6 +52,11 @@ class AppPages {
       name: Routes.MAIN_NAVIGATION,
       page: () => MainNavigationView(),
       binding: MainNavigationBinding(),
-    )
+    ),
+    GetPage(
+      name: Routes.PESAN_TIKET,
+      page: () => const PesanTiketView(),
+      binding: PesanTiketBinding(),
+    ),
   ];
 }

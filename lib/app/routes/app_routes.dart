@@ -14,4 +14,6 @@ abstract class Routes {
   static const DETAIL_FILM = '/detail-film';
 
   static const MAIN_NAVIGATION = '/main-navigation';
+
+  static const PESAN_TIKET = '/pesan-tiket';
 }

@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../data/models/film_model.dart';
+import '../controllers/detail_film_controller.dart';
 
 class DetailFilmView extends StatelessWidget {
   const DetailFilmView({super.key});
@@ -10,22 +10,22 @@ class DetailFilmView extends StatelessWidget {
   Future<void> _launchTrailer(String? urlString) async {
     if (urlString == null || urlString.isEmpty) {
       Get.snackbar(
-        "Info", 
-        "Trailer tidak tersedia untuk film ini.", 
-        backgroundColor: Colors.white, 
+        "Info",
+        "Trailer tidak tersedia untuk film ini.",
+        backgroundColor: Colors.white,
         colorText: Colors.black,
         snackPosition: SnackPosition.BOTTOM,
         margin: EdgeInsets.all(20),
       );
       return;
     }
-    
+
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       Get.snackbar(
-        "Error", 
-        "Tidak dapat membuka link trailer.", 
-        backgroundColor: Colors.red, 
+        "Error",
+        "Tidak dapat membuka link trailer.",
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     }
@@ -33,10 +33,9 @@ class DetailFilmView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil data film yang dikirim melalui arguments
-    final FilmModel film = Get.arguments;
-    
-    // Tema warna Fillix eksklusif
+    final controller = Get.find<DetailFilmController>();
+    final film = controller.film;
+
     const Color primaryBrown = Color(0xFF443127);
     const Color accentYellow = Color(0xFFFBE488);
 
@@ -44,7 +43,7 @@ class DetailFilmView extends StatelessWidget {
       backgroundColor: primaryBrown,
       body: Stack(
         children: [
-          // Lapis 1: Konten yang bisa di-scroll
+          // Konten yang bisa di-scroll
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,52 +52,44 @@ class DetailFilmView extends StatelessWidget {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // Solusi 2: Gradient Fading (Gaya Netflix)
                     Container(
                       width: double.infinity,
-                      height: MediaQuery.of(context).size.height * 0.55, // Diperpanjang sedikit agar gradasi lebih halus
+                      height: MediaQuery.of(context).size.height * 0.55,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          // Layer 1: Gambar Asli
                           Image.network(
                             film.gambarSampul ?? film.gambarPoster ?? "",
-                            fit: BoxFit.cover, // Cover dengan fokus di atas
+                            fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
                           ),
-                          
-                          // Layer 2: Efek Gradient Fading menyatu ke Coklat Tua
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.transparent,                // Atas murni bening
-                                  Colors.transparent,                // Tengah bening
-                                  primaryBrown.withOpacity(0.8),     // Memudar lumayan tebal
-                                  primaryBrown,                      // Bawah coklat solid
+                                  Colors.transparent,
+                                  Colors.transparent,
+                                  primaryBrown.withOpacity(0.8),
+                                  primaryBrown,
                                 ],
-                                stops: const [0.0, 0.5, 0.85, 1.0], // Transisi dipercepat di bawah
+                                stops: const [0.0, 0.5, 0.85, 1.0],
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    
-                    // Penutup "Garis Jahitan" (Anti-aliasing bleed cover) 
+
                     Positioned(
                       bottom: -2,
                       left: 0,
                       right: 0,
                       height: 4,
-                      child: Container(
-                        color: primaryBrown,
-                      ),
+                      child: Container(color: primaryBrown),
                     ),
-                    
-                    // Gradient hitam tipis di atas agar tombol & status bar tetap terbaca saat belum discroll
+
                     Container(
                       width: double.infinity,
                       height: 100,
@@ -114,7 +105,7 @@ class DetailFilmView extends StatelessWidget {
                       ),
                     ),
 
-                    // Play Button (Tengah Bawah melayang)
+                    // Play Button melayang
                     Positioned(
                       bottom: -35,
                       left: 0,
@@ -136,16 +127,16 @@ class DetailFilmView extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: Icon(Icons.play_arrow_rounded, size: 40, color: primaryBrown),
+                            child: Icon(Icons.play_arrow_rounded,
+                                size: 40, color: primaryBrown),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                
-                // Jarak untuk tombol play yang melayang
-                SizedBox(height: 60), 
+
+                SizedBox(height: 60),
 
                 // Informasi Film
                 Padding(
@@ -153,7 +144,6 @@ class DetailFilmView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Tanggal Rilis
                       Text(
                         "Release Date: ${film.tanggalRilis ?? '-'}",
                         style: TextStyle(
@@ -163,30 +153,26 @@ class DetailFilmView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 15),
-                      
-                      // Row: Poster Kecil & Judul Film (Membawa kembali layout lama)
+
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Poster Kecil
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
-                              film.gambarPoster ?? "", 
+                              film.gambarPoster ?? "",
                               width: 100,
                               height: 150,
                               fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(width: 16),
-                          
-                          // Judul Film di sebelah poster
                           Expanded(
                             child: Text(
                               film.judul ?? "Unknown Title",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 26, // Disesuaikan agar muat
+                                fontSize: 26,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                                 height: 1.2,
@@ -197,21 +183,22 @@ class DetailFilmView extends StatelessWidget {
                       ),
                       SizedBox(height: 25),
 
-                      // Kategori/Tags (Berbentuk Kapsul/Pill)
                       Wrap(
                         spacing: 12,
                         runSpacing: 12,
                         children: [
-                          _buildChip(film.kategori ?? "Movie", accentYellow, primaryBrown, true),
-                          _buildChip("Fillix Movie", Colors.white.withOpacity(0.1), Colors.white, false),
+                          _buildChip(film.kategori ?? "Movie", accentYellow,
+                              primaryBrown, true),
+                          _buildChip("Fillix Movie",
+                              Colors.white.withOpacity(0.1), Colors.white, false),
                         ],
                       ),
                       SizedBox(height: 30),
 
-                      // Rating Row
                       Row(
                         children: [
-                          Icon(Icons.star_rounded, color: accentYellow, size: 30),
+                          Icon(Icons.star_rounded,
+                              color: accentYellow, size: 30),
                           SizedBox(width: 8),
                           Text(
                             "${film.skorRating ?? 0}/100",
@@ -231,12 +218,12 @@ class DetailFilmView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      
+
                       SizedBox(height: 25),
-                      Divider(color: Colors.white.withOpacity(0.1), thickness: 1),
+                      Divider(
+                          color: Colors.white.withOpacity(0.1), thickness: 1),
                       SizedBox(height: 25),
 
-                      // Synopsis
                       Text(
                         "Synopsis",
                         style: TextStyle(
@@ -255,6 +242,117 @@ class DetailFilmView extends StatelessWidget {
                         ),
                         textAlign: TextAlign.justify,
                       ),
+                      SizedBox(height: 30),
+
+                      // Tombol Pesan Tiket
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: controller.navigateToPesanTiket,
+                          icon: const Icon(Icons.confirmation_number),
+                          label: const Text('Pesan Tiket',
+                              style: TextStyle(fontSize: 16)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: accentYellow,
+                            foregroundColor: primaryBrown,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 30),
+                      Divider(
+                          color: Colors.white.withOpacity(0.1), thickness: 1),
+                      SizedBox(height: 20),
+
+                      // Section Komentar
+                      Text(
+                        "Komentar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+
+                      // Input Komentar
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: controller.komentarController,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: 'Tulis komentar...',
+                                hintStyle:
+                                    TextStyle(color: Colors.white54),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.white.withOpacity(0.3)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: accentYellow),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: controller.kirimKomentar,
+                            icon: Icon(Icons.send, color: accentYellow),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // List Komentar
+                      Obx(() {
+                        if (controller.isLoadingKomentar.value) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        if (controller.komentarList.isEmpty) {
+                          return Text('Belum ada komentar.',
+                              style: TextStyle(color: Colors.white54));
+                        }
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: controller.komentarList.length,
+                          separatorBuilder: (_, __) => Divider(
+                              color: Colors.white.withOpacity(0.1)),
+                          itemBuilder: (_, i) {
+                            final k = controller.komentarList[i];
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(
+                                backgroundColor:
+                                    accentYellow.withOpacity(0.2),
+                                child: Icon(Icons.person,
+                                    color: accentYellow),
+                              ),
+                              title: Text(k.namaUser ?? 'Anonim',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13)),
+                              subtitle: Text(k.isi ?? '',
+                                  style: TextStyle(
+                                      color: Colors.white70)),
+                            );
+                          },
+                        );
+                      }),
+
                       SizedBox(height: 40),
                     ],
                   ),
@@ -262,11 +360,11 @@ class DetailFilmView extends StatelessWidget {
               ],
             ),
           ),
-          
-          // Lapis 2: Tombol Kembali Melayang (Statis / Tidak bergerak saat discroll)
+
+          // Tombol Kembali Melayang
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
-            right: 20, // Dipindahkan ke kanan atas sesuai instruksi
+            right: 20,
             child: GestureDetector(
               onTap: () => Get.back(),
               child: Container(
@@ -274,7 +372,8 @@ class DetailFilmView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.4),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  border:
+                      Border.all(color: Colors.white.withOpacity(0.3)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
@@ -283,9 +382,8 @@ class DetailFilmView extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Karena letaknya di kanan atas, icon 'Close' terasa lebih natural dari UI/UX 
-                // dibanding panah kiri, tapi tetap menjalankan fungsi kembali (Get.back)
-                child: Icon(Icons.close_rounded, color: Colors.white, size: 22),
+                child: Icon(Icons.close_rounded,
+                    color: Colors.white, size: 22),
               ),
             ),
           ),
@@ -294,15 +392,17 @@ class DetailFilmView extends StatelessWidget {
     );
   }
 
-  // Widget Helper untuk membuat label kategori (Kapsul)
-  Widget _buildChip(String label, Color bgColor, Color textColor, bool isPrimary) {
+  Widget _buildChip(String label, Color bgColor, Color textColor,
+      bool isPrimary) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPrimary ? Colors.transparent : Colors.white.withOpacity(0.2),
+          color: isPrimary
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.2),
         ),
       ),
       child: Text(
