@@ -10,5 +10,4 @@ abstract class Routes {
   static const DETAIL_FILM = '/detail-film';
   static const PESAN_TIKET = '/pesan-tiket';
 
-  static const TRAILER = '/trailer';
 }

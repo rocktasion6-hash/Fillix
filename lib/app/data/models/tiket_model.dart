@@ -5,6 +5,7 @@ class TiketModel {
   String? judulFilm;
   String? tanggalTayang;
   int? jumlahKursi;
+  List<String>? kursiDipilih;
   String? createdAt;
 
   TiketModel({
@@ -14,6 +15,7 @@ class TiketModel {
     this.judulFilm,
     this.tanggalTayang,
     this.jumlahKursi,
+    this.kursiDipilih,
     this.createdAt,
   });
 
@@ -27,6 +29,9 @@ class TiketModel {
       jumlahKursi: json['jumlah_kursi'] is int
           ? json['jumlah_kursi']
           : int.tryParse(json['jumlah_kursi']?.toString() ?? ''),
+      kursiDipilih: json['kursi_dipilih'] != null
+          ? List<String>.from(json['kursi_dipilih'])
+          : [],
       createdAt: json['created_at']?.toString(),
     );
   }
@@ -37,5 +42,6 @@ class TiketModel {
         'judul_film': judulFilm,
         'tanggal_tayang': tanggalTayang,
         'jumlah_kursi': jumlahKursi,
+        'kursi_dipilih': kursiDipilih,
       };
 }

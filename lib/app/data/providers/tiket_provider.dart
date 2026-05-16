@@ -13,6 +13,20 @@ class TiketProvider {
     return (data as List).map((e) => TiketModel.fromJson(e)).toList();
   }
 
+  Future<List<String>> getKursiTerpesan(String filmId, String tanggal) async {
+    final data = await _supabase
+        .from('tiket')
+        .select('kursi_dipilih')
+        .eq('film_id', filmId)
+        .eq('tanggal_tayang', tanggal);
+    List<String> semua = [];
+    for (var row in data) {
+      final list = row['kursi_dipilih'];
+      if (list != null) semua.addAll(List<String>.from(list));
+    }
+    return semua;
+  }
+
   Future<void> pesanTiket(TiketModel tiket) async {
     await _supabase.from('tiket').insert(tiket.toJson());
   }

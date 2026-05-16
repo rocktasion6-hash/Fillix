@@ -1,60 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class TrailerView extends StatefulWidget {
-  const TrailerView({super.key});
-
-  @override
-  State<TrailerView> createState() => _TrailerViewState();
-}
-
-class _TrailerViewState extends State<TrailerView> {
-  late YoutubePlayerController _ytController;
-  bool _isValidUrl = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final String url = Get.arguments ?? '';
-    final videoId = YoutubePlayer.convertUrlToId(url);
-
-    if (videoId != null) {
-      _isValidUrl = true;
-      _ytController = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: const YoutubePlayerFlags(autoPlay: true),
-      );
+class TrailerView {
+  static Future<void> open(String? url) async {
+    if (url == null || url.isEmpty) {
+      Get.snackbar('Info', 'Trailer tidak tersedia untuk film ini.');
+      return;
     }
-  }
-
-  @override
-  void dispose() {
-    if (_isValidUrl) _ytController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Trailer'),
-      ),
-      body: Center(
-        child: _isValidUrl
-            ? YoutubePlayer(
-                controller: _ytController,
-                showVideoProgressIndicator: true,
-                progressIndicatorColor: const Color(0xFFFBE488),
-              )
-            : const Text(
-                'URL trailer tidak valid atau tidak tersedia.',
-                style: TextStyle(color: Colors.white70),
-              ),
-      ),
-    );
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      Get.snackbar('Error', 'Tidak dapat membuka trailer.');
+    }
   }
 }
