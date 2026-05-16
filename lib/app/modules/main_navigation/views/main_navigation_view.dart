@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/main_navigation_controller.dart';
 import '../../home/views/home_view.dart';
+import '../../dashboard/views/dashboard_view.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
   const MainNavigationView({super.key});
@@ -14,21 +15,8 @@ class MainNavigationView extends GetView<MainNavigationController> {
       body: Obx(() => IndexedStack(
         index: controller.currentIndex.value,
         children: [
-          // Tab 0: Dashboard (Kosong sementara)
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.dashboard_rounded, size: 80, color: Colors.grey[400]),
-                SizedBox(height: 16),
-                Text(
-                  "Halaman Dashboard",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700]),
-                ),
-                Text("Segera hadir...", style: TextStyle(color: Colors.grey)),
-              ],
-            ),
-          ),
+          // Tab 0: Dashboard
+          DashboardView(),
 
           // Tab 1: HomeView (List Film)
           // HomeView harus diakses di sini

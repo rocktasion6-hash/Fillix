@@ -23,12 +23,16 @@ import '../modules/admin_crud/views/admin_crud_view.dart';
 // Detail Film
 import '../modules/detail_film/bindings/detail_film_binding.dart';
 import '../modules/detail_film/views/detail_film_view.dart';
+<<<<<<< Updated upstream
 
 // Pesan Tiket
 import '../modules/pesan_tiket/bindings/pesan_tiket_binding.dart';
 import '../modules/pesan_tiket/views/pesan_tiket_view.dart';
 
 // Main Navigation
+=======
+import '../modules/detail_film/bindings/detail_film_binding.dart';
+>>>>>>> Stashed changes
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
 

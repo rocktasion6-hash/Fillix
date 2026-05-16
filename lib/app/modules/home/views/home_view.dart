@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
-import '../../../routes/app_pages.dart';
 import '../../../routes/app_routes.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -12,26 +11,35 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.grey[100], // Background lembut
       appBar: AppBar(
-        title: Text("Fillix Movies", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          "Daftar Film",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.grey[100], // Mengikuti warna background
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout_rounded),
+            icon: Icon(Icons.logout_rounded, color: Colors.black87),
             onPressed: () => Get.offAllNamed(Routes.LOGIN),
-          )
+          ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
         }
-        
+
         if (controller.listFilm.isEmpty) {
-          return Center(child: Text("Belum ada data film"));
+          return Center(
+            child: Text(
+              "Belum ada data film",
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
         }
 
-        // Menggunakan GridView agar lebih menarik seperti aplikasi streaming
+        // Kembali menggunakan GridView murni agar langsung bisa di-scroll sebagai list
         return GridView.builder(
           padding: const EdgeInsets.all(12),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -45,7 +53,9 @@ class HomeView extends GetView<HomeController> {
             final film = controller.listFilm[index];
             return Card(
               clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               elevation: 4,
               child: InkWell(
                 onTap: () => Get.toNamed(Routes.DETAIL_FILM, arguments: film),
@@ -69,7 +79,10 @@ class HomeView extends GetView<HomeController> {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.8),
+                            ],
                           ),
                         ),
                       ),
@@ -84,13 +97,20 @@ class HomeView extends GetView<HomeController> {
                         children: [
                           Text(
                             film.judul ?? "",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             film.kategori ?? "",
-                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -106,8 +126,15 @@ class HomeView extends GetView<HomeController> {
                               backgroundColor: Colors.white.withOpacity(0.9),
                               radius: 16,
                               child: IconButton(
-                                icon: Icon(Icons.edit, size: 16, color: Colors.blue),
-                                onPressed: () => Get.toNamed(Routes.ADMIN_CRUD, arguments: film),
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () => Get.toNamed(
+                                  Routes.ADMIN_CRUD,
+                                  arguments: film,
+                                ),
                               ),
                             ),
                             SizedBox(width: 5),
@@ -115,8 +142,13 @@ class HomeView extends GetView<HomeController> {
                               backgroundColor: Colors.white.withOpacity(0.9),
                               radius: 16,
                               child: IconButton(
-                                icon: Icon(Icons.delete, size: 16, color: Colors.red),
-                                onPressed: () => _confirmDelete(film.id!, film.judul!),
+                                icon: Icon(
+                                  Icons.delete,
+                                  size: 16,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () =>
+                                    _confirmDelete(film.id!, film.judul!),
                               ),
                             ),
                           ],
@@ -129,13 +161,15 @@ class HomeView extends GetView<HomeController> {
           },
         );
       }),
-      floatingActionButton: Obx(() => controller.isAdmin.value
-          ? FloatingActionButton.extended(
-              onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
-              label: Text("Tambah"),
-              icon: Icon(Icons.add),
-            )
-          : SizedBox()),
+      floatingActionButton: Obx(
+        () => controller.isAdmin.value
+            ? FloatingActionButton.extended(
+                onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
+                label: Text("Tambah"),
+                icon: Icon(Icons.add),
+              )
+            : SizedBox(),
+      ),
     );
   }
 
