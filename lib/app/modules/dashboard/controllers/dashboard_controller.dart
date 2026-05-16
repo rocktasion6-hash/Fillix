@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:get/get.dart';
 import '../../../data/providers/film_provider.dart';
 import '../../../data/models/film_model.dart';
@@ -19,87 +18,58 @@ class DashboardController extends GetxController {
     fetchData();
   }
 
-  Future<bool> _isImageReachable(String url) async {
-    try {
-      final uri = Uri.tryParse(url);
-      if (uri == null) return false;
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 5);
-      final req = await client.openUrl('HEAD', uri);
-      final resp = await req.close();
-      client.close(force: true);
-      return resp.statusCode >= 200 && resp.statusCode < 400;
-    } catch (_) {
-      return false;
-    }
-  }
-
   void fetchData() async {
     try {
       isLoading.value = true;
       final films = await _filmProvider.getAllFilms();
 
-      // Latest: sort by tanggalRilis desc
+      if (films.isEmpty) {
+        isLoading.value = false;
+        return;
+      }
+
+      // 1. LATEST: Urutkan berdasarkan tanggalRilis (Terbaru ke Terlama)
+      // Dikonversi ke String agar aman dari error tipe data
       final byDate = List<FilmModel>.from(films);
-      byDate.sort((a, b) => (b.tanggalRilis ?? 0).compareTo(a.tanggalRilis ?? 0));
+      byDate.sort((a, b) {
+        String dateA = a.tanggalRilis?.toString() ?? "";
+        String dateB = b.tanggalRilis?.toString() ?? "";
+        return dateB.compareTo(dateA);
+      });
+      latest.assignAll(byDate.take(6).toList());
 
-      // Prefer films that have image fields and reachable URLs
-      final latestCandidates = <FilmModel>[];
-      for (final f in byDate) {
-        if (_hasImage(f)) {
-          final url = f.gambarSampul?.trim().isNotEmpty == true ? f.gambarSampul! : (f.gambarPoster ?? '');
-          if (url.isNotEmpty && await _isImageReachable(url)) {
-            latestCandidates.add(f);
-          }
-        }
-        if (latestCandidates.length >= 6) break;
-      }
-      if (latestCandidates.length >= 6) {
-        latest.assignAll(latestCandidates.take(6).toList());
-      } else {
-        latest.assignAll(byDate.take(6).toList());
-      }
-
-      // Recommended: top by skorRating desc, prefer reachable images
+      // 2. RECOMMENDED: Urutkan berdasarkan skorRating (Tertinggi ke Terendah)
+      // Dikonversi ke double agar aman (mencegah error jika tipe aslinya int/String)
       final byRating = List<FilmModel>.from(films);
-      byRating.sort((a, b) => (b.skorRating ?? 0).compareTo(a.skorRating ?? 0));
+      byRating.sort((a, b) {
+        double ratingA =
+            double.tryParse(a.skorRating?.toString() ?? "0") ?? 0.0;
+        double ratingB =
+            double.tryParse(b.skorRating?.toString() ?? "0") ?? 0.0;
+        return ratingB.compareTo(ratingA);
+      });
+      recommended.assignAll(byRating.take(6).toList());
 
-      final recommendedCandidates = <FilmModel>[];
-      for (final f in byRating) {
-        if (_hasImage(f)) {
-          final url = f.gambarSampul?.trim().isNotEmpty == true ? f.gambarSampul! : (f.gambarPoster ?? '');
-          if (url.isNotEmpty && await _isImageReachable(url)) {
-            recommendedCandidates.add(f);
-          }
-        }
-        if (recommendedCandidates.length >= 6) break;
-      }
-      if (recommendedCandidates.isNotEmpty) {
-        recommended.assignAll(recommendedCandidates.take(6).toList());
-      } else {
-        recommended.assignAll(byRating.take(6).toList());
-      }
-
-      // Featured: highest rated that has reachable image
+      // 3. FEATURED: Ambil dari list rating tertinggi yang memiliki gambar
       FilmModel? featured;
       for (final f in byRating) {
         if (_hasImage(f)) {
-          final url = f.gambarSampul?.trim().isNotEmpty == true ? f.gambarSampul! : (f.gambarPoster ?? '');
-          if (url.isNotEmpty && await _isImageReachable(url)) {
-            featured = f;
-            break;
-          }
+          featured = f;
+          break; // Berhenti begitu menemukan 1 film terbaik yang punya gambar
         }
       }
-      featuredFilm.value = featured ?? (byRating.isNotEmpty ? byRating.first : null);
+      featuredFilm.value =
+          featured ?? (byRating.isNotEmpty ? byRating.first : null);
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.snackbar('Gagal Memuat Data', e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
+  // Cukup cek apakah field database tidak kosong, urusan gambar rusak ditangani UI
   bool _hasImage(FilmModel film) {
-    return (film.gambarPoster?.trim().isNotEmpty == true) || (film.gambarSampul?.trim().isNotEmpty == true);
+    return (film.gambarPoster?.trim().isNotEmpty == true) ||
+        (film.gambarSampul?.trim().isNotEmpty == true);
   }
 }
