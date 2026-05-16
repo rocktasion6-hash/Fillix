@@ -1,8 +1,11 @@
+import 'package:fillix/app/modules/profile/views/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/main_navigation_controller.dart';
 import '../../home/views/home_view.dart';
 import '../../dashboard/views/dashboard_view.dart';
+import '../../profile/views/profile_view.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class MainNavigationView extends GetView<MainNavigationController> {
   const MainNavigationView({super.key});
@@ -23,20 +26,7 @@ class MainNavigationView extends GetView<MainNavigationController> {
           HomeView(),
 
           // Tab 2: Profile (Kosong sementara)
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.person_outline_rounded, size: 80, color: Colors.grey[400]),
-                SizedBox(height: 16),
-                Text(
-                  "Halaman Profile",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700]),
-                ),
-                Text("Role Anda: ${controller.role}", style: TextStyle(color: Colors.grey)),
-              ],
-            ),
-          ),
+          ProfileView()
         ],
       )),
 

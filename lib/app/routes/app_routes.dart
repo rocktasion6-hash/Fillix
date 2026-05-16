@@ -9,5 +9,5 @@ abstract class Routes {
   static const ADMIN_CRUD = '/admin-crud';
   static const DETAIL_FILM = '/detail-film';
   static const PESAN_TIKET = '/pesan-tiket';
-
+  static const PROFILE = '/profile';
 }

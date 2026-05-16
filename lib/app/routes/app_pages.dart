@@ -37,6 +37,10 @@ import '../modules/pesan_tiket/views/pesan_tiket_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
 
+//profile
+import '../modules/profile/views/profile_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
@@ -84,5 +88,10 @@ class AppPages {
       page: () => const PesanTiketView(),
       binding: PesanTiketBinding(),
     ),
+    GetPage(
+      name: Routes.PROFILE,
+      page: () => ProfileView(),
+      binding: ProfileBinding(),
+),
   ];
 }
