@@ -5,6 +5,13 @@ import 'package:get/get.dart';
 
 import '../controllers/splash_controller.dart';
 
+// Tema disamakan dengan halaman login
+const Color splashPrimaryBrown = Color(0xFF443127);
+const Color splashDarkBrown = Color(0xFF241812);
+const Color splashAccentYellow = Color(0xFFFBE488);
+const Color splashSoftYellow = Color(0xFFFFF2B8);
+const Color splashWarmOrange = Color(0xFFD9903D);
+
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
@@ -48,7 +55,7 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: splashPrimaryBrown,
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
@@ -78,7 +85,7 @@ class _SplashViewState extends State<SplashView>
           return Stack(
             fit: StackFit.expand,
             children: [
-              const ColoredBox(color: Colors.black),
+              const ColoredBox(color: splashPrimaryBrown),
 
               // Cahaya merah tipis di belakang logo, seperti awal intro.
               if (appear > 0)
@@ -89,11 +96,8 @@ class _SplashViewState extends State<SplashView>
                   ),
                 ),
 
-              // Efek masuk ke dalam logo: garis merah melebar dari tengah.
-              if (zoom > 0)
-                CustomPaint(
-                  painter: _RedZoomGatePainter(progress: zoom, centerX: stemZoomX),
-                ),
+              // Layer garis vertikal dihapus supaya tidak ada garis
+              // yang melewati huruf F ke atas dan ke bawah.
 
               // Bagian paling mirip intro Netflix: lorong garis warna-warni.
               if (tunnel > 0)
@@ -134,7 +138,7 @@ class _SplashViewState extends State<SplashView>
               if (finalFade > 0)
                 Opacity(
                   opacity: finalFade,
-                  child: const ColoredBox(color: Colors.black),
+                  child: const ColoredBox(color: splashPrimaryBrown),
                 ),
             ],
           );
@@ -202,6 +206,38 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
   }
 
 
+
+
+  Path _revealedPath(
+    Path path,
+    Rect bounds,
+    double reveal, {
+    bool vertical = false,
+  }) {
+    final safeReveal = reveal.clamp(0.0, 1.0);
+    if (safeReveal <= 0) return Path();
+
+    final revealRect = vertical
+        ? Rect.fromLTWH(
+            bounds.left - 40,
+            bounds.top - 40,
+            bounds.width + 80,
+            (bounds.height + 80) * safeReveal,
+          )
+        : Rect.fromLTWH(
+            bounds.left - 40,
+            bounds.top - 40,
+            (bounds.width + 80) * safeReveal,
+            bounds.height + 80,
+          );
+
+    return Path.combine(
+      PathOperation.intersect,
+      path,
+      Path()..addRect(revealRect),
+    );
+  }
+
   void _drawMeltStripes(
     Canvas canvas,
     Path clipPath,
@@ -215,12 +251,12 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = <Color>[
-      const Color(0xFFFF101A),
-      const Color(0xFFFF5A00),
-      const Color(0xFFFFB000),
-      const Color(0xFFFF2D75),
-      const Color(0xFF8B22FF),
-      const Color(0xFF4FB2FF),
+      splashAccentYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      Colors.white,
     ];
 
     canvas.save();
@@ -253,7 +289,7 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
         Offset(x, h * -0.05),
         Offset(x + w * 0.02, h * 1.05),
         Paint()
-          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..color = splashDarkBrown.withOpacity((0.14 + 0.34 * amount) * opacity)
           ..strokeWidth = 0.8 + (i % 3) * 1.0
           ..strokeCap = StrokeCap.square,
       );
@@ -274,21 +310,21 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..color = splashAccentYellow.withOpacity(0.20 * (1 - blurAmount) + 0.025)
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          4 + 24 * blurAmount,
+          10 + 34 * blurAmount,
         ),
     );
 
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..color = splashWarmOrange.withOpacity(0.055 * (1 - blurAmount))
         ..blendMode = BlendMode.plus
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          12 + 28 * blurAmount,
+          20 + 36 * blurAmount,
         ),
     );
   }
@@ -346,37 +382,55 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
     if (topVisible > 0) visibleLogo.addPath(topBar, Offset.zero);
     if (midVisible > 0) visibleLogo.addPath(middleBar, Offset.zero);
 
-    final shadow = Paint()
-      ..color = const Color(0xFFE50914).withOpacity(0.35 + 0.20 * progress)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 18 + glow * 26);
+    // Glow / shadow dibuat dari path gabungan, bukan dari kotak clipRect.
+    // Ini menghilangkan efek bayangan berbentuk kotak di pinggir huruf.
+    final smoothGlowLogo = Path()
+      ..addPath(
+        _revealedPath(
+          stem,
+          Rect.fromLTWH(w * 0.12, h * 0.02, w * 0.38, h * 0.98),
+          verticalReveal,
+          vertical: true,
+        ),
+        Offset.zero,
+      )
+      ..addPath(
+        _revealedPath(
+          topBar,
+          Rect.fromLTWH(w * 0.15, h * 0.00, w * 0.83, h * 0.25),
+          topVisible,
+        ),
+        Offset.zero,
+      )
+      ..addPath(
+        _revealedPath(
+          middleBar,
+          Rect.fromLTWH(w * 0.38, h * 0.36, w * 0.45, h * 0.26),
+          midVisible,
+        ),
+        Offset.zero,
+      );
 
-    // Glow juga ikut muncul mengikuti bagian yang sudah terbentuk.
     if (progress > 0) {
-      canvas.save();
-      canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
-      _drawRevealedPath(
-        canvas,
-        stem,
-        Rect.fromLTWH(w * 0.12, h * 0.02, w * 0.38, h * 0.98),
-        shadow,
-        verticalReveal,
-        vertical: true,
+      canvas.drawPath(
+        smoothGlowLogo,
+        Paint()
+          ..color = splashAccentYellow.withOpacity(0.060 + 0.045 * progress)
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            46 + glow * 58,
+          ),
       );
-      _drawRevealedPath(
-        canvas,
-        topBar,
-        Rect.fromLTWH(w * 0.15, h * 0.00, w * 0.83, h * 0.25),
-        shadow,
-        topVisible,
+
+      canvas.drawPath(
+        smoothGlowLogo,
+        Paint()
+          ..color = splashWarmOrange.withOpacity(0.030 + 0.030 * progress)
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            74 + glow * 54,
+          ),
       );
-      _drawRevealedPath(
-        canvas,
-        middleBar,
-        Rect.fromLTWH(w * 0.38, h * 0.36, w * 0.45, h * 0.26),
-        shadow,
-        midVisible,
-      );
-      canvas.restore();
     }
 
     final redOpacity = (1 - stemMelt * 0.92).clamp(0.08, 1.0);
@@ -386,10 +440,10 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFFFF1D25).withOpacity(redOpacity),
-          const Color(0xFFE50914).withOpacity(redOpacity),
-          const Color(0xFFB00610).withOpacity(redOpacity),
-          const Color(0xFFFF0712).withOpacity(redOpacity),
+          splashSoftYellow.withOpacity(redOpacity),
+          splashAccentYellow.withOpacity(redOpacity),
+          splashWarmOrange.withOpacity(redOpacity),
+          splashAccentYellow.withOpacity(redOpacity),
         ],
         stops: const [0.0, 0.35, 0.72, 1.0],
       ).createShader(rect);
@@ -444,8 +498,8 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFF620006).withOpacity(0.88),
-          const Color(0xFFE50914).withOpacity(0.10),
+          splashDarkBrown.withOpacity(0.88),
+          splashAccentYellow.withOpacity(0.10),
         ],
       ).createShader(rect);
 
@@ -479,8 +533,8 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            const Color(0xFF6F0007).withOpacity(0.52),
-            const Color(0xFFFF1822).withOpacity(0.16),
+            splashDarkBrown.withOpacity(0.52),
+            splashAccentYellow.withOpacity(0.16),
           ],
         ).createShader(rect),
       midVisible,
@@ -509,9 +563,9 @@ class _FillixNetflixFLogoPainter extends CustomPainter {
             end: Alignment.centerRight,
             colors: [
               Colors.transparent,
-              const Color(0xFFFF1A1F).withOpacity(0.16 * meshProgress),
-              const Color(0xFFFFB000).withOpacity(0.10 * meshProgress),
-              const Color(0xFF8B22FF).withOpacity(0.14 * meshProgress),
+              splashAccentYellow.withOpacity(0.16 * meshProgress),
+              splashSoftYellow.withOpacity(0.10 * meshProgress),
+              splashSoftYellow.withOpacity(0.14 * meshProgress),
               Colors.transparent,
             ],
           ).createShader(rect)
@@ -582,12 +636,12 @@ class _RedAtmospherePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = <Color>[
-      const Color(0xFFFF101A),
-      const Color(0xFFFF5A00),
-      const Color(0xFFFFB000),
-      const Color(0xFFFF2D75),
-      const Color(0xFF8B22FF),
-      const Color(0xFF4FB2FF),
+      splashAccentYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      Colors.white,
     ];
 
     canvas.save();
@@ -620,7 +674,7 @@ class _RedAtmospherePainter extends CustomPainter {
         Offset(x, h * -0.05),
         Offset(x + w * 0.02, h * 1.05),
         Paint()
-          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..color = splashDarkBrown.withOpacity((0.14 + 0.34 * amount) * opacity)
           ..strokeWidth = 0.8 + (i % 3) * 1.0
           ..strokeCap = StrokeCap.square,
       );
@@ -641,21 +695,21 @@ class _RedAtmospherePainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..color = splashAccentYellow.withOpacity(0.20 * (1 - blurAmount) + 0.025)
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          4 + 24 * blurAmount,
+          10 + 34 * blurAmount,
         ),
     );
 
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..color = splashWarmOrange.withOpacity(0.055 * (1 - blurAmount))
         ..blendMode = BlendMode.plus
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          12 + 28 * blurAmount,
+          20 + 36 * blurAmount,
         ),
     );
   }
@@ -670,23 +724,22 @@ class _RedAtmospherePainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           colors: [
-            const Color(0xFF320004).withOpacity(0.55 * progress),
-            const Color(0xFF090000).withOpacity(0.25 * progress),
-            Colors.black,
+            splashDarkBrown.withOpacity(0.55 * progress),
+            splashPrimaryBrown.withOpacity(0.25 * progress),
+            splashPrimaryBrown,
           ],
           stops: const [0.0, 0.34, 1.0],
         ).createShader(rect),
     );
 
-    final glowWidth = 14 + pulse * 28;
-    canvas.drawLine(
-      Offset(size.width * 0.50, size.height * 0.16),
-      Offset(size.width * 0.50, size.height * 0.84),
+    // Garis vertikal tengah sengaja dihapus.
+    // Sebagai gantinya, pakai glow radial yang lembut di belakang logo.
+    canvas.drawCircle(
+      center,
+      size.width * (0.18 + 0.03 * pulse),
       Paint()
-        ..color = const Color(0xFFE50914).withOpacity(0.14 * progress)
-        ..strokeWidth = glowWidth
-        ..strokeCap = StrokeCap.round
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 28),
+        ..color = splashAccentYellow.withOpacity(0.055 * progress)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 46),
     );
   }
 
@@ -716,12 +769,12 @@ class _RedZoomGatePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = <Color>[
-      const Color(0xFFFF101A),
-      const Color(0xFFFF5A00),
-      const Color(0xFFFFB000),
-      const Color(0xFFFF2D75),
-      const Color(0xFF8B22FF),
-      const Color(0xFF4FB2FF),
+      splashAccentYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      Colors.white,
     ];
 
     canvas.save();
@@ -754,7 +807,7 @@ class _RedZoomGatePainter extends CustomPainter {
         Offset(x, h * -0.05),
         Offset(x + w * 0.02, h * 1.05),
         Paint()
-          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..color = splashDarkBrown.withOpacity((0.14 + 0.34 * amount) * opacity)
           ..strokeWidth = 0.8 + (i % 3) * 1.0
           ..strokeCap = StrokeCap.square,
       );
@@ -775,21 +828,21 @@ class _RedZoomGatePainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..color = splashAccentYellow.withOpacity(0.20 * (1 - blurAmount) + 0.025)
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          4 + 24 * blurAmount,
+          10 + 34 * blurAmount,
         ),
     );
 
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..color = splashWarmOrange.withOpacity(0.055 * (1 - blurAmount))
         ..blendMode = BlendMode.plus
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          12 + 28 * blurAmount,
+          20 + 36 * blurAmount,
         ),
     );
   }
@@ -814,10 +867,10 @@ class _RedZoomGatePainter extends CustomPainter {
           end: Alignment.centerRight,
           colors: [
             Colors.transparent,
-            const Color(0xFF410004).withOpacity(0.48 * opacity),
-            const Color(0xFFE50914).withOpacity(0.96 * opacity),
-            const Color(0xFFFF101A).withOpacity(0.96 * opacity),
-            const Color(0xFF410004).withOpacity(0.48 * opacity),
+            splashDarkBrown.withOpacity(0.48 * opacity),
+            splashAccentYellow.withOpacity(0.96 * opacity),
+            splashAccentYellow.withOpacity(0.96 * opacity),
+            splashDarkBrown.withOpacity(0.48 * opacity),
             Colors.transparent,
           ],
         ).createShader(rect),
@@ -842,42 +895,31 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
   });
 
   static const _warmPalette = <Color>[
-    Color(0xFFE50914),
-    Color(0xFFFF1A1F),
-    Color(0xFFFF6400),
-    Color(0xFFFFB400),
-    Color(0xFFFFD86B),
-    Color(0xFFB12A12),
-    Color(0xFF7B0010),
-    Color(0xFFFF2D75),
-    Color(0xFF8A18D6),
+    splashAccentYellow,
+    splashSoftYellow,
+    splashWarmOrange,
+    Color(0xFFB97935),
+    Color(0xFF6B4A35),
+    splashPrimaryBrown,
   ];
 
   static const _fullPalette = <Color>[
-    Color(0xFFFFF0B0),
-    Color(0xFFFF9448),
-    Color(0xFFE50914),
-    Color(0xFFFF6A00),
-    Color(0xFFFFCC66),
-    Color(0xFFFF2D75),
-    Color(0xFF7E57FF),
-    Color(0xFF4FB2FF),
-    Color(0xFFFFA05A),
-    Color(0xFF8B3F32),
-    Color(0xFFE50914),
+    splashSoftYellow,
+    splashAccentYellow,
+    splashWarmOrange,
+    Color(0xFFCFA35A),
+    Color(0xFF8A6144),
+    splashPrimaryBrown,
+    Colors.white,
   ];
 
   static const _coolPalette = <Color>[
-    Color(0xFFE50914),
-    Color(0xFFFF2E24),
-    Color(0xFFFFB35A),
-    Color(0xFFFF7C39),
-    Color(0xFFFF6AA7),
-    Color(0xFFC9B5D8),
-    Color(0xFF4960FF),
-    Color(0xFF2D7BFF),
-    Color(0xFF33A6FF),
-    Color(0xFF67D9FF),
+    splashAccentYellow,
+    splashSoftYellow,
+    splashWarmOrange,
+    Color(0xFFCFA35A),
+    Color(0xFF6B4A35),
+    splashPrimaryBrown,
   ];
 
   double _phase(double start, double end, [Curve curve = Curves.easeOutCubic]) {
@@ -941,7 +983,7 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
           Offset(x, rect.top),
           Offset(x, rect.bottom),
           Paint()
-            ..color = Colors.black.withOpacity(blackGapStrength * (0.32 + (i % 4) * 0.09))
+            ..color = splashDarkBrown.withOpacity(blackGapStrength * (0.32 + (i % 4) * 0.09))
             ..strokeWidth = 1.0 + (i % 3) * 1.2
             ..strokeCap = StrokeCap.square,
         );
@@ -963,12 +1005,12 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = <Color>[
-      const Color(0xFFFF101A),
-      const Color(0xFFFF5A00),
-      const Color(0xFFFFB000),
-      const Color(0xFFFF2D75),
-      const Color(0xFF8B22FF),
-      const Color(0xFF4FB2FF),
+      splashAccentYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      splashWarmOrange,
+      splashSoftYellow,
+      Colors.white,
     ];
 
     canvas.save();
@@ -1001,7 +1043,7 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
         Offset(x, h * -0.05),
         Offset(x + w * 0.02, h * 1.05),
         Paint()
-          ..color = Colors.black.withOpacity((0.14 + 0.34 * amount) * opacity)
+          ..color = splashDarkBrown.withOpacity((0.14 + 0.34 * amount) * opacity)
           ..strokeWidth = 0.8 + (i % 3) * 1.0
           ..strokeCap = StrokeCap.square,
       );
@@ -1022,21 +1064,21 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF1A1F).withOpacity(0.34 * (1 - blurAmount) + 0.06)
+        ..color = splashAccentYellow.withOpacity(0.20 * (1 - blurAmount) + 0.025)
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          4 + 24 * blurAmount,
+          10 + 34 * blurAmount,
         ),
     );
 
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFFFF8A00).withOpacity(0.10 * (1 - blurAmount))
+        ..color = splashWarmOrange.withOpacity(0.055 * (1 - blurAmount))
         ..blendMode = BlendMode.plus
         ..maskFilter = MaskFilter.blur(
           BlurStyle.normal,
-          12 + 28 * blurAmount,
+          20 + 36 * blurAmount,
         ),
     );
   }
@@ -1052,7 +1094,7 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
     final p4 = _phase(0.68, 0.92, Curves.easeInCubic);
     final endBlack = _phase(0.88, 1.00, Curves.easeIn);
 
-    canvas.drawRect(Offset.zero & size, Paint()..color = Colors.black);
+    canvas.drawRect(Offset.zero & size, Paint()..color = splashPrimaryBrown);
 
     // Phase 1: bidang garis vertikal hangat masih sempit, sisi tetap hitam.
     if (progress < 0.28) {
@@ -1071,11 +1113,11 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Colors.black.withOpacity(0.9),
-              const Color(0xFF4B0008).withOpacity(0.95 * fadeOut),
-              const Color(0xFFAA0914).withOpacity(0.98 * fadeOut),
-              const Color(0xFF4B0008).withOpacity(0.95 * fadeOut),
-              Colors.black.withOpacity(0.9),
+              splashDarkBrown.withOpacity(0.9),
+              splashDarkBrown.withOpacity(0.95 * fadeOut),
+              splashWarmOrange.withOpacity(0.98 * fadeOut),
+              splashDarkBrown.withOpacity(0.95 * fadeOut),
+              splashDarkBrown.withOpacity(0.9),
             ],
             stops: const [0.0, 0.18, 0.5, 0.82, 1.0],
           ).createShader(bandRect),
@@ -1114,12 +1156,12 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Colors.black.withOpacity(0.95),
-              const Color(0xFF3A0005).withOpacity(0.92 * fadeOut),
-              const Color(0xFF90220F).withOpacity(0.95 * fadeOut),
-              const Color(0xFF5C1A12).withOpacity(0.95 * fadeOut),
-              const Color(0xFF310006).withOpacity(0.92 * fadeOut),
-              Colors.black.withOpacity(0.95),
+              splashDarkBrown.withOpacity(0.95),
+              splashDarkBrown.withOpacity(0.92 * fadeOut),
+              splashWarmOrange.withOpacity(0.95 * fadeOut),
+              splashPrimaryBrown.withOpacity(0.95 * fadeOut),
+              splashDarkBrown.withOpacity(0.92 * fadeOut),
+              splashDarkBrown.withOpacity(0.95),
             ],
             stops: const [0.0, 0.10, 0.34, 0.68, 0.90, 1.0],
           ).createShader(bandRect),
@@ -1153,12 +1195,12 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Colors.black,
-              const Color(0xFF180002).withOpacity(0.95 * fadeOut),
-              const Color(0xFF250103).withOpacity(0.95 * fadeOut),
-              const Color(0xFF0D1029).withOpacity(0.96 * fadeOut),
-              const Color(0xFF071730).withOpacity(0.96 * fadeOut),
-              Colors.black,
+              splashPrimaryBrown,
+              splashDarkBrown.withOpacity(0.95 * fadeOut),
+              splashPrimaryBrown.withOpacity(0.95 * fadeOut),
+              splashPrimaryBrown.withOpacity(0.96 * fadeOut),
+              splashDarkBrown.withOpacity(0.96 * fadeOut),
+              splashPrimaryBrown,
             ],
             stops: const [0.0, 0.14, 0.42, 0.62, 0.86, 1.0],
           ).createShader(fullRect),
@@ -1171,12 +1213,12 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
         canvas,
         leftRect,
         palette: const [
-          Color(0xFFE50914),
-          Color(0xFFFF301A),
-          Color(0xFFFF8A3D),
-          Color(0xFFFFD8A8),
-          Color(0xFFFF5B5B),
-          Color(0xFFB00020),
+          splashAccentYellow,
+          splashSoftYellow,
+          splashWarmOrange,
+          Color(0xFFCFA35A),
+          Color(0xFF8A6144),
+          splashPrimaryBrown,
         ],
         count: 58,
         opacity: 0.88 * fadeOut,
@@ -1190,12 +1232,12 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
         canvas,
         rightRect,
         palette: const [
-          Color(0xFFB8C6FF),
-          Color(0xFF4A62FF),
-          Color(0xFF2C78FF),
-          Color(0xFF39AFFF),
-          Color(0xFF60E2FF),
-          Color(0xFF8595FF),
+          splashSoftYellow,
+          splashAccentYellow,
+          splashWarmOrange,
+          Color(0xFFCFA35A),
+          Colors.white,
+          splashPrimaryBrown,
         ],
         count: 44,
         opacity: 0.92 * fadeOut,
@@ -1215,9 +1257,9 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             end: Alignment.centerRight,
             colors: [
               Colors.transparent,
-              const Color(0xFFFF3A29).withOpacity(0.08 * fadeOut),
+              splashAccentYellow.withOpacity(0.08 * fadeOut),
               const Color(0xFFFFFFFF).withOpacity(0.06 * fadeOut),
-              const Color(0xFF59B8FF).withOpacity(0.08 * fadeOut),
+              splashSoftYellow.withOpacity(0.08 * fadeOut),
               Colors.transparent,
             ],
             stops: const [0.0, 0.35, 0.55, 0.78, 1.0],
@@ -1248,11 +1290,11 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Colors.black.withOpacity(sideMaskOpacity),
-              Colors.black.withOpacity(sideMaskOpacity),
+              splashDarkBrown.withOpacity(sideMaskOpacity),
+              splashDarkBrown.withOpacity(sideMaskOpacity),
               Colors.transparent,
-              Colors.black.withOpacity(sideMaskOpacity),
-              Colors.black.withOpacity(sideMaskOpacity),
+              splashDarkBrown.withOpacity(sideMaskOpacity),
+              splashDarkBrown.withOpacity(sideMaskOpacity),
             ],
             stops: const [0.0, 0.42, 0.50, 0.58, 1.0],
           ).createShader(Offset.zero & size),
@@ -1267,11 +1309,11 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Colors.black.withOpacity(0.0),
-              const Color(0xFF5D0006).withOpacity(0.90 * fadeOut),
-              const Color(0xFFFF1A1F).withOpacity(0.98 * fadeOut),
-              const Color(0xFF5D0006).withOpacity(0.90 * fadeOut),
-              Colors.black.withOpacity(0.0),
+              splashDarkBrown.withOpacity(0.0),
+              splashDarkBrown.withOpacity(0.90 * fadeOut),
+              splashAccentYellow.withOpacity(0.98 * fadeOut),
+              splashDarkBrown.withOpacity(0.90 * fadeOut),
+              splashDarkBrown.withOpacity(0.0),
             ],
             stops: const [0.0, 0.20, 0.50, 0.80, 1.0],
           ).createShader(lineRect),
@@ -1280,10 +1322,10 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
         canvas,
         lineRect,
         palette: const [
-          Color(0xFFFF101A),
-          Color(0xFFFF6152),
-          Color(0xFFFFC4B7),
-          Color(0xFFE50914),
+          splashAccentYellow,
+          splashSoftYellow,
+          splashWarmOrange,
+          Colors.white,
         ],
         count: 18,
         opacity: (1.0 - collapse * 0.15) * fadeOut,
@@ -1305,8 +1347,8 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
           radius: 0.95,
           colors: [
             Colors.transparent,
-            Colors.black.withOpacity(0.08 + 0.12 * progress),
-            Colors.black.withOpacity(0.76),
+            splashDarkBrown.withOpacity(0.08 + 0.12 * progress),
+            splashDarkBrown.withOpacity(0.76),
           ],
           stops: const [0.0, 0.72, 1.0],
         ).createShader(Offset.zero & size),
@@ -1315,7 +1357,7 @@ class _NetflixLikeTunnelPainter extends CustomPainter {
     if (endBlack > 0) {
       canvas.drawRect(
         Offset.zero & size,
-        Paint()..color = Colors.black.withOpacity(endBlack),
+        Paint()..color = splashDarkBrown.withOpacity(endBlack),
       );
     }
   }
