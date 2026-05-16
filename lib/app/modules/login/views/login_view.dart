@@ -5,15 +5,18 @@ import '../../../routes/app_pages.dart';
 import '../../../routes/app_routes.dart';
 
 class LoginView extends GetView<LoginController> {
+  const LoginView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Login Fillix")),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             TextField(
               controller: controller.emailController,
               decoration: InputDecoration(labelText: "Email"),
@@ -41,7 +44,8 @@ class LoginView extends GetView<LoginController> {
               onPressed: () => Get.toNamed(Routes.REGISTER),
               child: Text("Belum punya akun? Daftar disini"),
             )
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../controllers/admin_crud_controller.dart';
 
 class AdminCrudView extends GetView<AdminCrudController> {
+  const AdminCrudView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

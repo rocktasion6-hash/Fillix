@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../../data/providers/auth_provider.dart';
-import '../../../routes/app_pages.dart';
 import '../../../routes/app_routes.dart';
 
 class LoginController extends GetxController {
@@ -43,14 +42,16 @@ class LoginController extends GetxController {
     Get.snackbar("Login Gagal", "Email atau password salah",
         backgroundColor: Colors.red, colorText: Colors.white);
   } finally {
-    isLoading.value = false;
+    if (!isClosed) {
+      isLoading.value = false;
+    }
   }
 }
 
   @override
   void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
+    // emailController.dispose();
+    // passwordController.dispose();
     super.onClose();
   }
 }

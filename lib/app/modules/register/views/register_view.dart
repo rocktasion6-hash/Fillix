@@ -3,14 +3,18 @@ import 'package:get/get.dart';
 import '../controllers/register_controller.dart';
 
 class RegisterView extends GetView<RegisterController> {
+  const RegisterView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Daftar Akun Fillix")),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             TextField(
               controller: controller.emailController,
               decoration: InputDecoration(labelText: "Email Baru"),
@@ -27,7 +31,8 @@ class RegisterView extends GetView<RegisterController> {
                   onPressed: controller.register,
                   child: Text("Daftar Sekarang"),
                 )),
-          ],
+            ],
+          ),
         ),
       ),
     );

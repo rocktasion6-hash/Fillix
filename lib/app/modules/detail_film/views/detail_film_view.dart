@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../data/models/film_model.dart';
 
 class DetailFilmView extends StatelessWidget {
+  const DetailFilmView({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Ambil data film yang dikirim melalui arguments

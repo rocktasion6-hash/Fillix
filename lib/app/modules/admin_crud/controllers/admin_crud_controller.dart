@@ -102,14 +102,15 @@ class AdminCrudController extends GetxController {
   @override
   void onClose() {
     // Dispose semua controller untuk menghindari memory leak
-    judulController.dispose();
-    kategoriController.dispose();
-    posterController.dispose();
-    sampulController.dispose();
-    ringkasanController.dispose();
-    ratingController.dispose();
-    rilisController.dispose();
-    trailerController.dispose();
+    // HAPUS SEMENTARA KARENA GETX BUG:
+    // judulController.dispose();
+    // kategoriController.dispose();
+    // posterController.dispose();
+    // sampulController.dispose();
+    // ringkasanController.dispose();
+    // ratingController.dispose();
+    // rilisController.dispose();
+    // trailerController.dispose();
     super.onClose();
   }
 }

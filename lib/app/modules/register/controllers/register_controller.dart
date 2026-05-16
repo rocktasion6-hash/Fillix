@@ -69,15 +69,18 @@ class RegisterController extends GetxController {
         colorText: Colors.white,
       );
     } finally {
-      isLoading.value = false;
+      if (!isClosed) {
+        isLoading.value = false;
+      }
     }
   }
 
   @override
   void onClose() {
     // Dispose untuk mencegah memory leak
-    emailController.dispose();
-    passwordController.dispose();
+    // HAPUS SEMENTARA KARENA GETX BUG:
+    // emailController.dispose();
+    // passwordController.dispose();
     super.onClose();
   }
 }
