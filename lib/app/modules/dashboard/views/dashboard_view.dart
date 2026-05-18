@@ -3,42 +3,42 @@ import 'package:get/get.dart';
 import '../controllers/dashboard_controller.dart';
 import '../../../data/models/film_model.dart';
 import '../../../routes/app_routes.dart';
+import '../../../utils/constants.dart'; // Import constant
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Warna dasar aplikasi Anda
-    final Color bgColor = Colors.grey[100]!;
+    final Color bgColor = AppColors.background;
 
     return Scaffold(
       backgroundColor: bgColor,
-      // 1. Kunci Utama: Tarik body ke belakang AppBar agar full-bleed
       extendBodyBehindAppBar: true,
-
       appBar: AppBar(
         title: Text(
           'Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
-        // 2. AppBar dibuat transparan
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
 
         return SingleChildScrollView(
-          // 3. Padding dihapus dari sini agar gambar bisa mentok ke ujung layar
           padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- BAGIAN HERO (Rekomendasi yang Menyatu dengan Background) ---
               Builder(
                 builder: (context) {
                   final featuredHeight =
@@ -50,13 +50,12 @@ class DashboardView extends GetView<DashboardController> {
                             child: Text(
                               'Tidak ada rekomendasi saat ini',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: AppColors.textGrey,
                                 fontSize: 16,
                               ),
                             ),
                           )
                         : PageView.builder(
-                            // viewportFraction diubah ke 1.0 agar melebar penuh
                             controller: PageController(viewportFraction: 1.0),
                             itemCount: controller.featuredFilms.length,
                             itemBuilder: (context, index) {
@@ -69,7 +68,6 @@ class DashboardView extends GetView<DashboardController> {
                                 child: Stack(
                                   clipBehavior: Clip.none,
                                   children: [
-                                    // Layer 1: Gambar Sampul (Full Width & Height)
                                     Positioned.fill(
                                       child: Image.network(
                                         film.gambarSampul?.trim().isNotEmpty ==
@@ -79,11 +77,9 @@ class DashboardView extends GetView<DashboardController> {
                                         fit: BoxFit.cover,
                                         alignment: Alignment.topCenter,
                                         errorBuilder: (c, e, s) =>
-                                            Container(color: Colors.grey[300]),
+                                            Container(color: AppColors.surface),
                                       ),
                                     ),
-
-                                    // Layer 2: Gradient menyatu ke warna background
                                     Positioned.fill(
                                       child: Container(
                                         decoration: BoxDecoration(
@@ -91,16 +87,12 @@ class DashboardView extends GetView<DashboardController> {
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              Colors.black.withOpacity(
-                                                0.6,
-                                              ), // Gelap di atas agar "Dashboard" terbaca
-                                              Colors
-                                                  .transparent, // Bening di tengah memperlihatkan gambar
+                                              Colors.black.withOpacity(0.7),
                                               Colors.transparent,
-                                              bgColor, // Diubah jadi solid lebih awal
-                                              bgColor, // Jaga tetap solid sampai bawah
+                                              Colors.transparent,
+                                              bgColor,
+                                              bgColor,
                                             ],
-                                            // Memajukan titik solid menjadi 95% agar transisi selesai sebelum gambar terpotong
                                             stops: const [
                                               0.0,
                                               0.2,
@@ -112,8 +104,6 @@ class DashboardView extends GetView<DashboardController> {
                                         ),
                                       ),
                                     ),
-
-                                    // Layer Tambahan: Penutup Jahitan (Anti-aliasing bleed cover)
                                     Positioned(
                                       bottom: -2,
                                       left: 0,
@@ -121,8 +111,6 @@ class DashboardView extends GetView<DashboardController> {
                                       height: 4,
                                       child: Container(color: bgColor),
                                     ),
-
-                                    // Layer 3: Tombol Play & Teks (Dibuat di tengah ala Netflix)
                                     Positioned(
                                       left: 20,
                                       right: 20,
@@ -135,7 +123,7 @@ class DashboardView extends GetView<DashboardController> {
                                             film.kategori?.toUpperCase() ??
                                                 'REKOMENDASI',
                                             style: TextStyle(
-                                              color: Colors.black54,
+                                              color: AppColors.textGrey,
                                               fontSize: 12,
                                               letterSpacing: 1.2,
                                               fontWeight: FontWeight.bold,
@@ -146,7 +134,7 @@ class DashboardView extends GetView<DashboardController> {
                                             film.judul ??
                                                 'Film terbaik untukmu',
                                             style: TextStyle(
-                                              color: Colors.black87,
+                                              color: AppColors.textWhite,
                                               fontSize: 28,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -155,18 +143,15 @@ class DashboardView extends GetView<DashboardController> {
                                             textAlign: TextAlign.center,
                                           ),
                                           SizedBox(height: 16),
-
-                                          // Floating Play Button
                                           Container(
                                             padding: EdgeInsets.all(16),
                                             decoration: BoxDecoration(
-                                              color: Color(0xFFFBE488),
+                                              color: AppColors.accent,
                                               shape: BoxShape.circle,
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Color(
-                                                    0xFFFBE488,
-                                                  ).withOpacity(0.4),
+                                                  color: AppColors.accent
+                                                      .withOpacity(0.4),
                                                   blurRadius: 15,
                                                   spreadRadius: 2,
                                                   offset: Offset(0, 5),
@@ -190,8 +175,6 @@ class DashboardView extends GetView<DashboardController> {
                   );
                 },
               ),
-
-              // --- KONTEN BAWAH ("Terbaru" dan "Rekomendasi") ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -203,7 +186,7 @@ class DashboardView extends GetView<DashboardController> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textWhite,
                       ),
                     ),
                     SizedBox(height: 12),
@@ -233,10 +216,10 @@ class DashboardView extends GetView<DashboardController> {
                                         width: 140,
                                         fit: BoxFit.cover,
                                         errorBuilder: (c, e, s) => Container(
-                                          color: Colors.grey[300],
+                                          color: AppColors.surface,
                                           child: Icon(
                                             Icons.broken_image,
-                                            color: Colors.grey,
+                                            color: AppColors.textGrey,
                                           ),
                                         ),
                                       ),
@@ -248,7 +231,7 @@ class DashboardView extends GetView<DashboardController> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: Colors.black87,
+                                      color: AppColors.textWhite,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -259,14 +242,13 @@ class DashboardView extends GetView<DashboardController> {
                         },
                       ),
                     ),
-
                     SizedBox(height: 24),
                     Text(
                       'Rekomendasi',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textWhite,
                       ),
                     ),
                     SizedBox(height: 12),
@@ -282,7 +264,7 @@ class DashboardView extends GetView<DashboardController> {
                         },
                       ),
                     ),
-                    SizedBox(height: 40), // Jarak aman di bagian paling bawah
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -313,7 +295,7 @@ class DashboardView extends GetView<DashboardController> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.black87,
+                color: AppColors.textWhite,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -332,9 +314,9 @@ class DashboardView extends GetView<DashboardController> {
 
     if (imageUrl == null || imageUrl.isEmpty) {
       return Container(
-        color: Colors.grey[300],
+        color: AppColors.surface,
         child: Center(
-          child: Icon(Icons.movie, size: 48, color: Colors.grey[600]),
+          child: Icon(Icons.movie, size: 48, color: AppColors.textGrey),
         ),
       );
     }
@@ -346,9 +328,13 @@ class DashboardView extends GetView<DashboardController> {
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(
-          color: Colors.grey[300],
+          color: AppColors.surface,
           child: Center(
-            child: Icon(Icons.broken_image, size: 48, color: Colors.grey[600]),
+            child: Icon(
+              Icons.broken_image,
+              size: 48,
+              color: AppColors.textGrey,
+            ),
           ),
         );
       },

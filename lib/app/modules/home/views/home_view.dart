@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../../../routes/app_routes.dart';
+import '../../../utils/constants.dart'; // Import constant
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -9,18 +10,21 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Background lembut
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           "Daftar Film",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.grey[100], // Mengikuti warna background
+        backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout_rounded, color: Colors.black87),
+            icon: Icon(Icons.logout_rounded, color: AppColors.textWhite),
             onPressed: () => Get.offAllNamed(Routes.LOGIN),
           ),
         ],
@@ -31,15 +35,17 @@ class HomeView extends GetView<HomeController> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: TextField(
               onChanged: controller.searchFilm,
+              style: TextStyle(color: AppColors.textWhite),
               decoration: InputDecoration(
                 hintText: 'Cari film atau kategori...',
-                prefixIcon: const Icon(Icons.search),
+                hintStyle: TextStyle(color: AppColors.textGrey),
+                prefixIcon: Icon(Icons.search, color: AppColors.textGrey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: AppColors.surface,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
@@ -47,14 +53,19 @@ class HomeView extends GetView<HomeController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                );
               }
 
               if (controller.filteredFilm.isEmpty) {
                 return Center(
-                  child: Text(controller.searchQuery.value.isEmpty
-                      ? 'Belum ada data film'
-                      : 'Film tidak ditemukan'),
+                  child: Text(
+                    controller.searchQuery.value.isEmpty
+                        ? 'Belum ada data film'
+                        : 'Film tidak ditemukan',
+                    style: TextStyle(color: AppColors.textWhite),
+                  ),
                 );
               }
 
@@ -69,138 +80,149 @@ class HomeView extends GetView<HomeController> {
                 itemCount: controller.filteredFilm.length,
                 itemBuilder: (context, index) {
                   final film = controller.filteredFilm[index];
-            return Card(
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              elevation: 4,
-              child: InkWell(
-                onTap: () => Get.toNamed(Routes.DETAIL_FILM, arguments: film),
-                child: Stack(
-                  children: [
-                    // Gambar Poster sebagai background kartu
-                    Positioned.fill(
-                      child: Image.network(
-                        film.gambarPoster ?? "",
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey[300],
-                          child: Icon(Icons.broken_image, color: Colors.grey),
-                        ),
-                      ),
+                  return Card(
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    // Overlay gradasi hitam agar teks terbaca
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.8),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Informasi Film
-                    Positioned(
-                      bottom: 10,
-                      left: 10,
-                      right: 10,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    elevation: 4,
+                    color: AppColors.surface,
+                    child: InkWell(
+                      onTap: () =>
+                          Get.toNamed(Routes.DETAIL_FILM, arguments: film),
+                      child: Stack(
                         children: [
-                          Text(
-                            film.judul ?? "",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            film.kategori ?? "",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 11,
+                          Positioned.fill(
+                            child: Image.network(
+                              film.gambarPoster ?? "",
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    color: AppColors.surface,
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      color: AppColors.textGrey,
+                                    ),
+                                  ),
                             ),
                           ),
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.9),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            left: 10,
+                            right: 10,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  film.judul ?? "",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  film.kategori ?? "",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (controller.isAdmin.value)
+                            Positioned(
+                              top: 5,
+                              right: 5,
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.black.withOpacity(
+                                      0.6,
+                                    ),
+                                    radius: 16,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: 16,
+                                        color: Colors.blue[300],
+                                      ),
+                                      onPressed: () => Get.toNamed(
+                                        Routes.ADMIN_CRUD,
+                                        arguments: film,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  CircleAvatar(
+                                    backgroundColor: Colors.black.withOpacity(
+                                      0.6,
+                                    ),
+                                    radius: 16,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                        size: 16,
+                                        color: Colors.red[300],
+                                      ),
+                                      onPressed: () =>
+                                          _confirmDelete(film.id!, film.judul!),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                    // Tombol Admin (Hanya muncul jika isAdmin true)
-                    if (controller.isAdmin.value)
-                      Positioned(
-                        top: 5,
-                        right: 5,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.white.withOpacity(0.9),
-                              radius: 16,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 16,
-                                  color: Colors.blue,
-                                ),
-                                onPressed: () => Get.toNamed(
-                                  Routes.ADMIN_CRUD,
-                                  arguments: film,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            CircleAvatar(
-                              backgroundColor: Colors.white.withOpacity(0.9),
-                              radius: 16,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.delete,
-                                  size: 16,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () =>
-                                    _confirmDelete(film.id!, film.judul!),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+                  );
+                },
+              );
             }),
           ),
         ],
       ),
-      floatingActionButton: Obx(() => controller.isAdmin.value
-          ? FloatingActionButton.extended(
-              onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
-              label: Text("Tambah"),
-              icon: Icon(Icons.add),
-            )
-          : SizedBox()),
+      floatingActionButton: Obx(
+        () => controller.isAdmin.value
+            ? FloatingActionButton.extended(
+                onPressed: () => Get.toNamed(Routes.ADMIN_CRUD),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                label: Text("Tambah"),
+                icon: Icon(Icons.add),
+              )
+            : SizedBox(),
+      ),
     );
   }
 
-  // Fungsi konfirmasi hapus agar tidak asal terhapus
   void _confirmDelete(String id, String judul) {
     Get.defaultDialog(
       title: "Hapus Film",
+      titleStyle: TextStyle(color: Colors.black),
       middleText: "Yakin ingin menghapus '$judul'?",
       textConfirm: "Ya, Hapus",
       textCancel: "Batal",
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
+      backgroundColor: Colors.white,
       onConfirm: () {
         controller.deleteFilm(id);
         Get.back();

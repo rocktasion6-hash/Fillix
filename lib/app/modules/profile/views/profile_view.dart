@@ -2,31 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/profile_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../utils/constants.dart'; // Import constant
 
 class ProfileView extends GetView<ProfileController> {
   ProfileView({super.key});
 
   final ProfileController controller = Get.put(ProfileController());
 
-  // Penyesuaian Palette Warna agar sinkron dengan Dashboard
-  static final Color bgColor = Colors.grey[100]!;
-  static const Color textDark = Colors.black87;
-  static const Color textMuted = Colors.black54;
-  static const Color accentYellow = Color(
-    0xFFFBE488,
-  ); // Warna tombol utama dashboard
-  static const Color darkBrown = Color(
-    0xFF443127,
-  ); // Warna icon play di dashboard
+  // Warna khusus icon/teks di atas tombol kuning
+  static const Color darkBrown = Color(0xFF443127);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.background, // Background utama
       appBar: AppBar(
         title: const Text(
           'Halaman Profile',
-          style: TextStyle(fontWeight: FontWeight.bold, color: textDark),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -36,7 +32,7 @@ class ProfileView extends GetView<ProfileController> {
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(
-              child: CircularProgressIndicator(color: darkBrown),
+              child: CircularProgressIndicator(color: AppColors.accent),
             );
           }
 
@@ -52,11 +48,11 @@ class ProfileView extends GetView<ProfileController> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface, // Warna Card Cokelat Terang
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -70,13 +66,14 @@ class ProfileView extends GetView<ProfileController> {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: accentYellow.withOpacity(0.3),
-                          border: Border.all(color: accentYellow, width: 2),
+                          color: AppColors.accent.withOpacity(0.15),
+                          border: Border.all(color: AppColors.accent, width: 2),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.person_rounded,
                           size: 55,
-                          color: darkBrown,
+                          color:
+                              AppColors.accent, // Icon disesuaikan agar terang
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -87,7 +84,7 @@ class ProfileView extends GetView<ProfileController> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: textDark,
+                          color: AppColors.textWhite,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -95,7 +92,10 @@ class ProfileView extends GetView<ProfileController> {
                       Text(
                         controller.email.value,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 14, color: textMuted),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                       const SizedBox(height: 14),
                       // Badge Role
@@ -105,18 +105,20 @@ class ProfileView extends GetView<ProfileController> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: isAdmin ? Colors.red[50] : Colors.blue[50],
+                          color: isAdmin
+                              ? Colors.red.withOpacity(0.2)
+                              : Colors.blue.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(
                             color: isAdmin
-                                ? Colors.red.withOpacity(0.3)
-                                : Colors.blue.withOpacity(0.3),
+                                ? Colors.red[300]!
+                                : Colors.blue[300]!,
                           ),
                         ),
                         child: Text(
                           controller.role.value.toUpperCase(),
                           style: TextStyle(
-                            color: isAdmin ? Colors.red[700] : Colors.blue[700],
+                            color: isAdmin ? Colors.red[200] : Colors.blue[200],
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.8,
@@ -130,7 +132,6 @@ class ProfileView extends GetView<ProfileController> {
 
                 // --- KONTEN MENU BERDASARKAN ROLE ---
                 if (isAdmin) ...[
-                  // Menampilkan Menu Khusus Admin (Hanya Kelola Pengguna)
                   _buildSectionTitle('Menu Admin'),
                   _MenuCard(
                     icon: Icons.people_alt_rounded,
@@ -198,7 +199,7 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: accentYellow,
+                      backgroundColor: AppColors.accent,
                       foregroundColor: darkBrown,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -227,7 +228,7 @@ class ProfileView extends GetView<ProfileController> {
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: textMuted,
+            color: AppColors.textGrey, // Menggunakan teks abu-abu agar harmonis
           ),
         ),
       ),
@@ -256,11 +257,11 @@ class _MenuCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface, // Background Card
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -273,15 +274,15 @@ class _MenuCard extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFFBE488).withOpacity(0.2),
+            color: AppColors.accent.withOpacity(0.15),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, color: const Color(0xFF443127)),
+          child: Icon(icon, color: AppColors.accent),
         ),
         title: Text(
           title,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.textWhite, // Teks putih
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -289,14 +290,14 @@ class _MenuCard extends StatelessWidget {
         subtitle: Text(
           subtitle,
           style: TextStyle(
-            color: Colors.black87.withOpacity(0.6),
+            color: AppColors.textGrey, // Teks subtitle abu-abu
             fontSize: 12,
           ),
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios_rounded,
           size: 14,
-          color: Colors.black38,
+          color: AppColors.textGrey,
         ),
       ),
     );
@@ -335,23 +336,21 @@ class AkunSayaPage extends StatelessWidget {
       tglBergabung = '${dt.day} ${namaBulan[dt.month - 1]} ${dt.year}';
     }
 
-    final Color bgColor = Colors.grey[100]!;
-    const Color textDark = Colors.black87;
-    const Color accentYellow = Color(0xFFFBE488);
-    const Color darkBrown = Color(0xFF443127);
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Akun Saya',
-          style: TextStyle(fontWeight: FontWeight.bold, color: textDark),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: textDark,
+            color: AppColors.textWhite,
             size: 20,
           ),
           onPressed: () => Get.back(),
@@ -365,23 +364,19 @@ class AkunSayaPage extends StatelessWidget {
           children: [
             const SizedBox(height: 10),
             Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 110,
-                    height: 110,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: accentYellow.withOpacity(0.3),
-                      border: Border.all(color: accentYellow, width: 3),
-                    ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      size: 65,
-                      color: darkBrown,
-                    ),
-                  ),
-                ],
+              child: Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.accent.withOpacity(0.15),
+                  border: Border.all(color: AppColors.accent, width: 3),
+                ),
+                child: Icon(
+                  Icons.person_rounded,
+                  size: 65,
+                  color: AppColors.accent,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -390,7 +385,7 @@ class AkunSayaPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: textDark,
+                color: AppColors.textWhite,
               ),
             ),
             const SizedBox(height: 25),
@@ -398,11 +393,11 @@ class AkunSayaPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -416,10 +411,14 @@ class AkunSayaPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: textDark,
+                      color: AppColors.textWhite,
                     ),
                   ),
-                  const Divider(height: 24, thickness: 1),
+                  Divider(
+                    height: 24,
+                    thickness: 1,
+                    color: AppColors.textGrey.withOpacity(0.2),
+                  ),
                   _buildInfoRow(
                     label: 'Alamat Email',
                     value: controller.email.value,
@@ -443,11 +442,11 @@ class AkunSayaPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -461,10 +460,14 @@ class AkunSayaPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: textDark,
+                      color: AppColors.textWhite,
                     ),
                   ),
-                  const Divider(height: 24, thickness: 1),
+                  Divider(
+                    height: 24,
+                    thickness: 1,
+                    color: AppColors.textGrey.withOpacity(0.2),
+                  ),
                   _buildInfoRow(
                     label: 'Jenis Kelamin',
                     value: 'Laki-laki / Perempuan',
@@ -496,10 +499,10 @@ class AkunSayaPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFFBE488).withOpacity(0.15),
+              color: AppColors.accent.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF443127), size: 20),
+            child: Icon(icon, color: AppColors.accent, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -510,7 +513,7 @@ class AkunSayaPage extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.black54.withOpacity(0.45),
+                    color: AppColors.textGrey,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -520,7 +523,7 @@ class AkunSayaPage extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: AppColors.textWhite,
                   ),
                 ),
               ],
@@ -534,7 +537,6 @@ class AkunSayaPage extends StatelessWidget {
 
 // ==========================================
 // HALAMAN KELOLA PENGGUNA (DAFTAR NON-ADMIN)
-
 class KelolaPenggunaPage extends StatefulWidget {
   const KelolaPenggunaPage({super.key});
 
@@ -543,28 +545,22 @@ class KelolaPenggunaPage extends StatefulWidget {
 }
 
 class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
-  // Key unik untuk memicu reload pada FutureBuilder saat data berubah/dihapus
   Key _futureKey = UniqueKey();
 
-  // Future untuk memuat user terdaftar dari tabel profiles selain admin
   Future<List<dynamic>> fetchDaftarUser() async {
     final supabase = Supabase.instance.client;
     final response = await supabase
         .from('profiles')
         .select()
-        .neq('role', 'admin'); // Mem-filter agar admin tidak ikut muncul
+        .neq('role', 'admin');
     return response as List<dynamic>;
   }
 
-  // Fungsi untuk mengeksekusi penghapusan user di database Supabase
   Future<void> hapusUser(String id, String name) async {
     try {
       final supabase = Supabase.instance.client;
-
-      // Menghapus baris berdasarkan ID pengguna
       await supabase.from('profiles').delete().eq('id', id);
 
-      // Memperbarui State dan mengganti Key agar FutureBuilder memanggil ulang data terbaru
       setState(() {
         _futureKey = UniqueKey();
       });
@@ -572,8 +568,8 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
       Get.snackbar(
         'Sukses',
         'Pengguna "$name" berhasil dihapus.',
-        backgroundColor: const Color(0xFFFBE488),
-        colorText: const Color(0xFF443127),
+        backgroundColor: AppColors.accent,
+        colorText: Color(0xFF443127),
       );
     } catch (e) {
       Get.snackbar(
@@ -587,23 +583,21 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color bgColor = Colors.grey[100]!;
-    const Color textDark = Colors.black87;
-    const Color darkBrown = Color(0xFF443127);
-    const Color accentYellow = Color(0xFFFBE488);
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Daftar Pengguna',
-          style: TextStyle(fontWeight: FontWeight.bold, color: textDark),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: textDark,
+            color: AppColors.textWhite,
             size: 20,
           ),
           onPressed: () => Get.back(),
@@ -612,13 +606,12 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
         elevation: 0,
       ),
       body: FutureBuilder<List<dynamic>>(
-        key:
-            _futureKey, // Pasang key di sini agar widget tahu kapan harus refresh data
+        key: _futureKey,
         future: fetchDaftarUser(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: darkBrown),
+              child: CircularProgressIndicator(color: AppColors.accent),
             );
           }
           if (snapshot.hasError ||
@@ -627,7 +620,7 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
             return Center(
               child: Text(
                 'Tidak ada data pengguna terdaftar.',
-                style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                style: TextStyle(color: AppColors.textGrey, fontSize: 15),
               ),
             );
           }
@@ -639,8 +632,7 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
             itemCount: listUser.length,
             itemBuilder: (context, index) {
               final userData = listUser[index];
-              final String userId =
-                  userData['id'] ?? ''; // Ambil ID untuk parameter hapus
+              final String userId = userData['id'] ?? '';
               final String userEmail = userData['email'] ?? 'Tidak ada email';
               final String userName =
                   userData['name'] ?? userEmail.split('@').first;
@@ -648,11 +640,11 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -666,44 +658,46 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
                     bottom: 6,
                   ),
                   leading: CircleAvatar(
-                    backgroundColor: accentYellow.withOpacity(0.3),
-                    child: const Icon(Icons.person, color: darkBrown),
+                    backgroundColor: AppColors.accent.withOpacity(0.15),
+                    child: const Icon(Icons.person, color: AppColors.accent),
                   ),
                   title: Text(
                     userName,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: textDark,
+                      color: AppColors.textWhite,
                     ),
                   ),
                   subtitle: Text(
                     userEmail,
-                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textGrey,
+                    ),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Badge Role USER
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: Colors.blue.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.blue[300]!),
                         ),
                         child: Text(
                           (userData['role'] ?? 'USER').toString().toUpperCase(),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue[700],
+                            color: Colors.blue[200],
                           ),
                         ),
                       ),
                       const SizedBox(width: 4),
-                      // Tombol Hapus Akun
                       IconButton(
                         icon: Icon(
                           Icons.delete_outline_rounded,
@@ -711,29 +705,26 @@ class _KelolaPenggunaPageState extends State<KelolaPenggunaPage> {
                           size: 22,
                         ),
                         onPressed: () {
-                          // Menampilkan Pop-up konfirmasi menggunakan dialog bawaan GetX
                           Get.defaultDialog(
                             title: 'Hapus Pengguna',
+                            backgroundColor: AppColors.surface,
                             titleStyle: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: textDark,
+                              color: AppColors.textWhite,
                             ),
                             middleText:
                                 'Apakah kamu yakin ingin menghapus akun "$userName"?',
                             middleTextStyle: const TextStyle(
-                              color: Colors.black87,
+                              color: AppColors.textGrey,
                             ),
                             textConfirm: 'Hapus',
                             confirmTextColor: Colors.white,
                             buttonColor: Colors.red[600],
                             textCancel: 'Batal',
-                            cancelTextColor: darkBrown,
+                            cancelTextColor: AppColors.accent,
                             onConfirm: () {
-                              Get.back(); // Tutup dialog konfirmasi
-                              hapusUser(
-                                userId,
-                                userName,
-                              ); // Jalankan fungsi hapus data
+                              Get.back();
+                              hapusUser(userId, userName);
                             },
                           );
                         },
@@ -760,23 +751,21 @@ class RiwayatTiketPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ProfileController>();
 
-    final Color bgColor = Colors.grey[100]!;
-    const Color textDark = Colors.black87;
-    const Color accentYellow = Color(0xFFFBE488);
-    const Color darkBrown = Color(0xFF443127);
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Tiket Saya',
-          style: TextStyle(fontWeight: FontWeight.bold, color: textDark),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textWhite,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: textDark,
+            color: AppColors.textWhite,
             size: 20,
           ),
           onPressed: () => Get.back(),
@@ -787,7 +776,7 @@ class RiwayatTiketPage extends StatelessWidget {
       body: Obx(() {
         if (controller.isLoadingTiket.value) {
           return const Center(
-            child: CircularProgressIndicator(color: darkBrown),
+            child: CircularProgressIndicator(color: AppColors.accent),
           );
         }
 
@@ -799,13 +788,13 @@ class RiwayatTiketPage extends StatelessWidget {
                 Icon(
                   Icons.confirmation_number_outlined,
                   size: 70,
-                  color: Colors.grey[400],
+                  color: AppColors.textGrey.withOpacity(0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'Belum ada tiket yang dipesan',
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: AppColors.textGrey,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -833,11 +822,11 @@ class RiwayatTiketPage extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface, // Background card tiket
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -855,12 +844,12 @@ class RiwayatTiketPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: accentYellow.withOpacity(0.2),
+                              color: AppColors.accent.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: const Icon(
                               Icons.movie_creation_rounded,
-                              color: darkBrown,
+                              color: AppColors.accent,
                               size: 26,
                             ),
                           ),
@@ -874,7 +863,8 @@ class RiwayatTiketPage extends StatelessWidget {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: textDark,
+                                    color:
+                                        AppColors.textWhite, // Judul film putih
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -882,16 +872,16 @@ class RiwayatTiketPage extends StatelessWidget {
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.calendar_today_rounded,
                                       size: 13,
-                                      color: Colors.black45,
+                                      color: AppColors.textGrey,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
                                       t['tanggal_tayang'] ?? '-',
-                                      style: const TextStyle(
-                                        color: Colors.black54,
+                                      style: TextStyle(
+                                        color: AppColors.textGrey,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -903,6 +893,7 @@ class RiwayatTiketPage extends StatelessWidget {
                         ],
                       ),
                     ),
+                    // Garis Putus-putus ala tiket, disesuaikan dengan warna bg utama
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
@@ -912,7 +903,7 @@ class RiwayatTiketPage extends StatelessWidget {
                             child: Container(
                               color: i % 2 == 0
                                   ? Colors.transparent
-                                  : Colors.grey[200],
+                                  : AppColors.background,
                               height: 2,
                             ),
                           ),
@@ -924,7 +915,9 @@ class RiwayatTiketPage extends StatelessWidget {
                         horizontal: 18,
                         vertical: 14,
                       ),
-                      color: Colors.grey[50]!.withOpacity(0.6),
+                      color: Colors.black.withOpacity(
+                        0.1,
+                      ), // Bagian bawah sedikit lebih gelap
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -935,7 +928,7 @@ class RiwayatTiketPage extends StatelessWidget {
                                 'KURSI',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: Colors.black38,
+                                  color: AppColors.textGrey,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -945,7 +938,8 @@ class RiwayatTiketPage extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: darkBrown,
+                                  color:
+                                      AppColors.accent, // Kursi berwarna kuning
                                 ),
                               ),
                             ],
@@ -956,16 +950,16 @@ class RiwayatTiketPage extends StatelessWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green[50],
+                              color: Colors.green.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: Colors.green.withOpacity(0.2),
+                                color: Colors.green.withOpacity(0.3),
                               ),
                             ),
                             child: Text(
                               '${t['jumlah_kursi'] ?? 0} Tiket',
                               style: TextStyle(
-                                color: Colors.green[700],
+                                color: Colors.green[400], // Warna hijau terang
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),

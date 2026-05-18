@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'app/data/services/supabase_service.dart';
 import 'app/routes/app_pages.dart';
-
+import 'app/utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,9 +22,11 @@ class MyApp extends StatelessWidget {
       getPages: AppPages.routes,
       theme: ThemeData(
         useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
-          primary: Colors.red,
+          seedColor: AppColors.primary,
+          primary: AppColors.primary,
+          background: AppColors.background,
         ),
       ),
       defaultTransition: Transition.cupertino,

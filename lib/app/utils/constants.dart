@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Warna Branding Fillix (Biasanya identik dengan warna bioskop/film)
+  // Warna Branding
   static const Color primary = Color(0xFFE50914); // Merah Netflix
-  static const Color background = Color(0xFF141414); // Hitam Gelap
-  static const Color surface = Color(0xFF2F2F2F); // Abu-abu Gelap (Card)
+
+  // Palet Cokelat Baru
+  static const Color background = Color(
+    0xFF3E2723,
+  ); // Cokelat Tua (Background Utama)
+  static const Color surface = Color(
+    0xFF4E342E,
+  ); // Cokelat Sedikit Terang (Card/TextField)
+  static const Color accent = Color(0xFFFBE488); // Kuning Pudar (Tombol Play)
+
+  // Warna Teks
   static const Color textWhite = Colors.white;
-  static const Color textGrey = Color(0xFFB3B3B3);
+  static const Color textGrey = Color(0xFFD7CCC8); // Krem Abu-abu (Subtitle)
 }
 
 class AppPadding {
