@@ -21,6 +21,7 @@ class DashboardController extends GetxController {
   void fetchData() async {
     try {
       isLoading.value = true;
+
       final films = await _filmProvider.getAllFilms();
 
       if (films.isEmpty) {
@@ -28,46 +29,89 @@ class DashboardController extends GetxController {
         return;
       }
 
-      // 1. LATEST: Urutkan berdasarkan tanggalRilis (Terbaru ke Terlama)
-      // Dikonversi ke String agar aman dari error tipe data
-      final byDate = List<FilmModel>.from(films);
-      byDate.sort((a, b) {
-        String dateA = a.tanggalRilis?.toString() ?? "";
-        String dateB = b.tanggalRilis?.toString() ?? "";
-        return dateB.compareTo(dateA);
-      });
-      latest.assignAll(byDate.take(6).toList());
+      // ===============================
+      // 1. TERBARU: Pilih sendiri dari ID API
+      // ===============================
+      final selectedLatestIds = [
+        "94",
+        "107",
+        "110",
+        "111",
+      ];
 
-      // 2. RECOMMENDED: Urutkan berdasarkan skorRating (Tertinggi ke Terendah)
-      // Dikonversi ke double agar aman (mencegah error jika tipe aslinya int/String)
-      final byRating = List<FilmModel>.from(films);
-      byRating.sort((a, b) {
-        double ratingA =
-            double.tryParse(a.skorRating?.toString() ?? "0") ?? 0.0;
-        double ratingB =
-            double.tryParse(b.skorRating?.toString() ?? "0") ?? 0.0;
-        return ratingB.compareTo(ratingA);
-      });
-      recommended.assignAll(byRating.take(6).toList());
+      final selectedLatestFilms = films.where((film) {
+        return selectedLatestIds.contains(
+          film.id.toString(),
+        );
+      }).toList();
 
-      // 3. FEATURED: Ambil dari list rating tertinggi yang memiliki gambar
+      latest.assignAll(selectedLatestFilms);
+
+      // ===============================
+      // 2. REKOMENDASI: Pilih sendiri dari ID API
+      // ===============================
+      final selectedRecommendationIds = [
+        "98",
+        "99",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+      ];
+
+      final selectedRecommendedFilms = films.where((film) {
+        return selectedRecommendationIds.contains(
+          film.id.toString(),
+        );
+      }).toList();
+
+      recommended.assignAll(selectedRecommendedFilms);
+
+      // ===============================
+      // 3. FEATURED / BANNER ATAS
+      // Ambil dari rekomendasi pilihan
+      // ===============================
       FilmModel? featured;
-      for (final f in byRating) {
+
+      for (final f in recommended) {
         if (_hasImage(f)) {
           featured = f;
-          break; // Berhenti begitu menemukan 1 film terbaik yang punya gambar
+          break;
         }
       }
-      featuredFilm.value =
-          featured ?? (byRating.isNotEmpty ? byRating.first : null);
+
+      // Jika rekomendasi kosong, ambil dari latest
+      if (featured == null) {
+        for (final f in latest) {
+          if (_hasImage(f)) {
+            featured = f;
+            break;
+          }
+        }
+      }
+
+      // Jika latest juga kosong, ambil dari semua film
+      if (featured == null) {
+        for (final f in films) {
+          if (_hasImage(f)) {
+            featured = f;
+            break;
+          }
+        }
+      }
+
+      featuredFilm.value = featured;
     } catch (e) {
-      Get.snackbar('Gagal Memuat Data', e.toString());
+      Get.snackbar(
+        'Gagal Memuat Data',
+        e.toString(),
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Cukup cek apakah field database tidak kosong, urusan gambar rusak ditangani UI
   bool _hasImage(FilmModel film) {
     return (film.gambarPoster?.trim().isNotEmpty == true) ||
         (film.gambarSampul?.trim().isNotEmpty == true);

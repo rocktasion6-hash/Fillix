@@ -7,9 +7,10 @@ class RegisterView extends GetView<RegisterController> {
 
   @override
   Widget build(BuildContext context) {
-    // Warna sesuai permintaan (Coklat tua dan Kuning pastel)
-    const Color primaryBrown = Color(0xFF443127); 
+    const Color primaryBrown = Color(0xFF443127);
+    const Color softBrown = Color(0xFF5A4032);
     const Color accentYellow = Color(0xFFFBE488);
+    const Color cream = Color(0xFFFFF8E7);
 
     return Scaffold(
       backgroundColor: primaryBrown,
@@ -19,8 +20,24 @@ class RegisterView extends GetView<RegisterController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Section
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 30.0, top: 20.0, bottom: 20.0),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(
+                left: 20.0,
+                right: 30.0,
+                top: 20.0,
+                bottom: 20.0,
+              ),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    primaryBrown,
+                    softBrown,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -28,21 +45,28 @@ class RegisterView extends GetView<RegisterController> {
                     onTap: () => Get.back(),
                     child: Row(
                       children: [
-                        Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: accentYellow,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
                         Text(
                           "Back to login",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.white.withOpacity(0.9),
                             fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
+
+                  const SizedBox(height: 30),
+
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10.0),
                     child: Text(
                       "Sign Up",
                       style: TextStyle(
@@ -56,14 +80,14 @@ class RegisterView extends GetView<RegisterController> {
                 ],
               ),
             ),
-            
-            // White Card Section
+
+            // Card Section
             Expanded(
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
+                  color: cream,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(40),
                     topRight: Radius.circular(40),
                   ),
@@ -71,7 +95,7 @@ class RegisterView extends GetView<RegisterController> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 20,
-                      offset: Offset(0, -5),
+                      offset: const Offset(0, -5),
                     ),
                   ],
                 ),
@@ -80,7 +104,7 @@ class RegisterView extends GetView<RegisterController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Register",
                         style: TextStyle(
                           color: primaryBrown,
@@ -88,32 +112,53 @@ class RegisterView extends GetView<RegisterController> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 30),
-                      
+
+                      const SizedBox(height: 30),
+
                       // Email Field
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.brown.withOpacity(0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: TextField(
                           controller: controller.emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             hintText: "Email",
                             hintStyle: TextStyle(color: Colors.grey[500]),
-                            prefixIcon: Icon(Icons.email_outlined, color: primaryBrown.withOpacity(0.7)),
+                            prefixIcon: Icon(
+                              Icons.email_outlined,
+                              color: primaryBrown.withOpacity(0.7),
+                            ),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 18),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 18),
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      
+
+                      const SizedBox(height: 20),
+
                       // Password Field
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.brown.withOpacity(0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: TextField(
                           controller: controller.passwordController,
@@ -121,51 +166,68 @@ class RegisterView extends GetView<RegisterController> {
                           decoration: InputDecoration(
                             hintText: "Password",
                             hintStyle: TextStyle(color: Colors.grey[500]),
-                            prefixIcon: Icon(Icons.lock_outline, color: primaryBrown.withOpacity(0.7)),
+                            prefixIcon: Icon(
+                              Icons.lock_outline,
+                              color: primaryBrown.withOpacity(0.7),
+                            ),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 18),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 18),
                           ),
                         ),
                       ),
-                      SizedBox(height: 40),
-                      
+
+                      const SizedBox(height: 40),
+
                       // Sign Up Button
                       SizedBox(
                         width: double.infinity,
                         height: 55,
-                        child: Obx(() => controller.isLoading.value 
-                          ? Center(child: CircularProgressIndicator(color: primaryBrown))
-                          : ElevatedButton(
-                              onPressed: controller.register,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryBrown,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                        child: Obx(
+                          () => controller.isLoading.value
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: primaryBrown,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: controller.register,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryBrown,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    elevation: 5,
+                                    shadowColor:
+                                        primaryBrown.withOpacity(0.5),
+                                  ),
+                                  child: const Text(
+                                    "Sign Up",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: accentYellow,
+                                    ),
+                                  ),
                                 ),
-                                elevation: 5,
-                                shadowColor: primaryBrown.withOpacity(0.5),
-                              ),
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: accentYellow,
-                                ),
-                              ),
-                            )),
+                        ),
                       ),
-                      
-                      SizedBox(height: 40),
-                      
+
+                      const SizedBox(height: 40),
+
                       // Login Link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Already have an account? ", style: TextStyle(color: Colors.grey[600])),
+                          Text(
+                            "Already have an account? ",
+                            style: TextStyle(
+                              color: Colors.brown.withOpacity(0.55),
+                            ),
+                          ),
                           GestureDetector(
                             onTap: () => Get.back(),
-                            child: Text(
+                            child: const Text(
                               "Login",
                               style: TextStyle(
                                 color: primaryBrown,
@@ -176,7 +238,8 @@ class RegisterView extends GetView<RegisterController> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
