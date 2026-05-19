@@ -4,7 +4,7 @@ import '../controllers/main_navigation_controller.dart';
 import '../../home/views/home_view.dart';
 import '../../dashboard/views/dashboard_view.dart';
 import '../../profile/views/profile_view.dart';
-import '../../../utils/constants.dart'; // Import constant
+import '../../../utils/constants.dart'; 
 
 class MainNavigationView extends GetView<MainNavigationController> {
   const MainNavigationView({super.key});

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/dashboard_controller.dart';
 import '../../../data/models/film_model.dart';
 import '../../../routes/app_routes.dart';
-import '../../../utils/constants.dart'; 
+import '../../../utils/constants.dart'; // Import constant
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -216,8 +216,7 @@ class DashboardView extends GetView<DashboardController> {
                                         width: 140,
                                         fit: BoxFit.cover,
                                         errorBuilder: (c, e, s) => Container(
-                                          color: AppColors.surface,
-                                          child: Icon(
+                                          color: AppColors.surface,                                         child: Icon(
                                             Icons.broken_image,
                                             color: AppColors.textGrey,
                                           ),
@@ -296,7 +295,7 @@ class DashboardView extends GetView<DashboardController> {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppColors.textWhite,
-                fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w500,
               ),
             ),
           ],
