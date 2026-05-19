@@ -29,9 +29,6 @@ class DashboardController extends GetxController {
         return;
       }
 
-      // ===============================
-      // 1. TERBARU: Pilih sendiri dari ID API
-      // ===============================
       final selectedLatestIds = [
         "94",
         "107",
@@ -47,9 +44,6 @@ class DashboardController extends GetxController {
 
       latest.assignAll(selectedLatestFilms);
 
-      // ===============================
-      // 2. REKOMENDASI: Pilih sendiri dari ID API
-      // ===============================
       final selectedRecommendationIds = [
         "98",
         "99",
@@ -68,10 +62,6 @@ class DashboardController extends GetxController {
 
       recommended.assignAll(selectedRecommendedFilms);
 
-      // ===============================
-      // 3. FEATURED / BANNER ATAS
-      // Ambil dari rekomendasi pilihan
-      // ===============================
       FilmModel? featured;
 
       for (final f in recommended) {
@@ -81,7 +71,6 @@ class DashboardController extends GetxController {
         }
       }
 
-      // Jika rekomendasi kosong, ambil dari latest
       if (featured == null) {
         for (final f in latest) {
           if (_hasImage(f)) {
@@ -91,7 +80,6 @@ class DashboardController extends GetxController {
         }
       }
 
-      // Jika latest juga kosong, ambil dari semua film
       if (featured == null) {
         for (final f in films) {
           if (_hasImage(f)) {

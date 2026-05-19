@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/dashboard_controller.dart';
 import '../../../data/models/film_model.dart';
 import '../../../routes/app_routes.dart';
-import '../../../utils/constants.dart'; // Import constant
+import '../../../utils/constants.dart'; 
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
