@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../routes/app_routes.dart';
+import '../../../utils/constants.dart';
 
 class LoginController extends GetxController {
   final AuthProvider _authProvider = Get.find<AuthProvider>();
@@ -32,7 +33,13 @@ class LoginController extends GetxController {
       // Mengambil role terbaru dari tabel profiles
       String role = await _authProvider.getUserRole(response.user!.id);
       
-      Get.snackbar("Sukses", "Selamat datang kembali!");
+      Get.snackbar(
+          "Sukses",
+          "Selamat datang kembali!",
+          colorText: AppColors.surface, 
+          backgroundColor:
+              const Color.fromARGB(255, 249, 233, 167).withOpacity(0.9) 
+        );
       
       // Kirim data role ke MainNavigation
       Get.offAllNamed(Routes.MAIN_NAVIGATION, arguments: role);
